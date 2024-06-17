@@ -1,6 +1,6 @@
 import React from "react";
 
-import {TreeItem} from '@mui/lab';
+import {TreeItem} from '@mui/x-tree-view';
 import Taxon from "./Taxon";
 
 function TaxonTreeItem(props) {
@@ -30,10 +30,7 @@ function TaxonTreeItem(props) {
 
   return (
     <TreeItem
-      nodeId={props.taxon.id + "_" + props.filter}
-      onLabelClick={(e) => {
-        e.preventDefault();
-      }}
+      itemId={props.taxon.id + "_" + props.filter}
       label={
         <Taxon
           taxon={props.taxon}

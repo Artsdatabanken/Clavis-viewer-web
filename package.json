@@ -1,0 +1,42 @@
+{
+  "name": "@artsdatabanken/clavis-viewer-web",
+  "version": "1.0.0",
+  "description": "Made with create-react-library",
+  "author": "wouterkoch",
+  "license": "MIT",
+  "repository": "artsdatabanken/clavis-viewer-web",
+  "main": "dist/index.js",
+  "module": "dist/index.modern.js",
+  "source": "src/index.js",
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "build": "microbundle-crl --no-compress --format modern,cjs",
+    "start": "microbundle-crl watch --no-compress --format modern,cjs",
+    "prepare": "run-s build",
+    "test": "run-s test:unit test:lint test:build",
+    "test:build": "run-s build",
+    "test:lint": "eslint .",
+    "test:unit": "cross-env CI=1 react-scripts test --env=jsdom",
+    "test:watch": "react-scripts test --env=jsdom",
+    "predeploy": "cd example && npm install && npm run build",
+    "deploy": "gh-pages -d example/build"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@babel/plugin-proposal-unicode-property-regex": "^7.18.6",
+    "@mui/icons-material": "^5.15.20",
+    "@mui/material": "^5.15.20",
+    "@mui/x-tree-view": "^7.7.0",
+    "microbundle-crl": "^0.13.11",
+    "postcss-flexbugs-fixes": "^5.0.2",
+    "postcss-preset-env": "^9.5.14",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^9.0.1",
+    "react-scripts": "^5.0.1"
+  }
+}

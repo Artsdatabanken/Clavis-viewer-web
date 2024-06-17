@@ -1,26 +1,20 @@
-import React, { Component } from "react";
+import React, { Component } from 'react'
 
-import { Tabs, Tab, AppBar, Typography, Box, Button, Card } from '@mui/material';
-import { TreeView, TreeItem } from '@mui/lab';
+import { Tabs, Tab, AppBar, Typography, Box, Button, Card } from '@mui/material'
+import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView'
+import { TreeItem } from '@mui/x-tree-view/TreeItem'
 
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-// import EcoIcon from "@mui/icons-material/Eco";
-import ForestIcon from '@mui/icons-material/Forest';
-import VpnKeyIcon from "@mui/icons-material/VpnKey";
-import BeenhereIcon from '@mui/icons-material/Beenhere';
-import InfoIcon from "@mui/icons-material/Info";
-import RestoreIcon from "@mui/icons-material/Restore";
+import ForestIcon from '@mui/icons-material/Forest'
+import VpnKeyIcon from '@mui/icons-material/VpnKey'
+import BeenhereIcon from '@mui/icons-material/Beenhere'
+import InfoIcon from '@mui/icons-material/Info'
+import RestoreIcon from '@mui/icons-material/Restore'
 
-import Taxon from "./Taxon";
-import TaxonTreeItem from "./TaxonTreeItem";
+import Taxon from './Taxon'
+import TaxonTreeItem from './TaxonTreeItem'
 
-import Character from "./Character";
-import Modal from "./Modal";
-
-import "../App.css";
-
-// import AutoIdentifier from "./components/AutoIdentifier";
+import Character from './Character'
+import Modal from './Modal'
 
 import {
   inferAlternatives,
@@ -29,23 +23,27 @@ import {
   toggleTaxonDismissed,
   isPartOfKey,
   filterTaxaByNames,
-  filterTaxaByIds,
-} from "../utils/logic";
+  filterTaxaByIds
+} from '../utils/logic'
 
 let wideScreen = false
 let reallySmall = false
 
 const getScreenSizes = () => {
-  wideScreen = document.getElementById("content") ? document.getElementById("content").offsetWidth > 992 : window.innerWidth > 992
-  reallySmall = document.getElementById("content") ? document.getElementById("content").offsetWidth < 768 : window.innerWidth < 768
+  wideScreen = document.getElementById('content')
+    ? document.getElementById('content').offsetWidth > 992
+    : window.innerWidth > 992
+  reallySmall = document.getElementById('content')
+    ? document.getElementById('content').offsetWidth < 768
+    : window.innerWidth < 768
 }
 
 function TabPanel(props) {
-  const { children, value, index, ...other } = props;
+  const { children, value, index, ...other } = props
 
   return (
     <div
-      role="tabpanel"
+      role='tabpanel'
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
@@ -53,49 +51,37 @@ function TabPanel(props) {
     >
       {value === index && <Box p={3}>{children}</Box>}
     </div>
-  );
+  )
 }
 
-function getTaxonAllIds(taxa) {
-  let ids = []
-
-  taxa.forEach(t => {
-    ids = ids.concat([`${t.id}_relevant`, `${t.id}_irrelevant`])
-    if(t.children && t.children.length) {
-      ids = ids.concat(getTaxonAllIds(t.children))
-    }
-  })
-
-  return ids;
-};
-
-
-class Identification extends Component {
+class IdentificationInterface extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       characters: [],
       taxa: [],
       value: 1,
-      modalObject: {},
-    };
+      modalObject: {}
+    }
   }
 
   componentDidMount() {
     if (!!this.props.keyId) {
-
-      console.log(this.props.keys.find((k) => k.id === this.props.keyId).filename)
-      this.getKey(this.props.keys.find((k) => k.id === this.props.keyId).filename)
-    }
-    else {
-      this.loadKey(this.props.clavis);
+      console.log(
+        this.props.keys.find((k) => k.id === this.props.keyId).filename
+      )
+      this.getKey(
+        this.props.keys.find((k) => k.id === this.props.keyId).filename
+      )
+    } else if (!!this.props.clavis) {
+      this.loadKey(this.props.clavis)
+    } else {
+      console.log('No key provided')
     }
     window.addEventListener('resize', this.resize)
   }
 
-
   resize = () => this.forceUpdate()
-
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.resize)
@@ -103,17 +89,16 @@ class Identification extends Component {
 
   // Dismiss a taxon manually, or restore it if it was dismissed. Then see which charactes are relevant
   toggleDismissTaxon = (id) => {
-    this.setState(toggleTaxonDismissed(this.state, id));
-  };
+    this.setState(toggleTaxonDismissed(this.state, id))
+  }
 
   // undo a previously given answer for an alternative
   undoAnswer = (id) => {
-    this.setState(giveAnswers(this.state, [[id, undefined]]));
-  };
-
+    this.setState(giveAnswers(this.state, [[id, undefined]]))
+  }
 
   makeTaxaRelevant = (taxa) => {
-    return taxa.map(t => {
+    return taxa.map((t) => {
       t.conflicts = []
       t.isRelevant = true
       t.isIrrelevant = false
@@ -122,28 +107,24 @@ class Identification extends Component {
       }
       return t
     })
-  };
+  }
 
   resetAnswers = () => {
-
     let answers = this.state.characters.reduce(
       (arr, elem) =>
-        arr.concat(
-          elem.states.filter((a) => a.isAnswered).map((a) => a.id)
-        ),
+        arr.concat(elem.states.filter((a) => a.isAnswered).map((a) => a.id)),
       []
-    );
+    )
     answers.forEach((a) => {
-      this.giveAnswer(a, undefined);
-    });
-  };
+      this.giveAnswer(a, undefined)
+    })
+  }
 
   setModal = (modalObject) => {
     if (modalObject.taxon) {
-      modalObject.keys = this.props.keys;
-      modalObject.key = { id: this.state.id };
+      modalObject.keys = this.props.keys
+      modalObject.key = { id: this.state.id }
       modalObject.mediaElements = this.state.mediaElements
-
     } else if (modalObject.about) {
       modalObject = {
         about: {
@@ -157,21 +138,21 @@ class Identification extends Component {
           descriptionDetails: this.state.descriptionDetails,
           descriptionUrl: this.state.descriptionUrl,
           lastModified: this.state.lastModified,
-          language: this.state.language,
-        },
-      };
-      modalObject.keys = this.props.keys;
+          language: this.state.language
+        }
+      }
+      modalObject.keys = this.props.keys
     }
-    this.setState({ modalObject: modalObject });
-  };
+    this.setState({ modalObject: modalObject })
+  }
 
   giveAnswer = (id, value) => {
-    this.setState(giveAnswers(this.state, [[id, value]]));
-  };
+    this.setState(giveAnswers(this.state, [[id, value]]))
+  }
 
   handleChange = (event, value) => {
-    this.setState({ value });
-  };
+    this.setState({ value })
+  }
 
   storeAutoId = (idResult) => {
     this.setState({
@@ -181,11 +162,11 @@ class Identification extends Component {
           prediction.isPartOfKey = isPartOfKey(
             this.state.taxa,
             prediction.taxon.name
-          );
-          return prediction;
-        }),
-    });
-  };
+          )
+          return prediction
+        })
+    })
+  }
 
   filterTaxaByPredictions = (predictions, keepCommonTaxon) => {
     this.setState(
@@ -194,47 +175,45 @@ class Identification extends Component {
         predictions.map((p) => p.taxon.name),
         keepCommonTaxon
       )
-    );
-  };
+    )
+  }
 
   loadKey = (data) => {
-    let myData = data;
-    myData.keys = this.props.keys;
+    let myData = data
 
-    myData = initElement(myData);
+    myData.keys = this.props.keys
+
+    myData = initElement(myData)
 
     if (this.props.taxonSelection && this.props.taxonSelection.length) {
-      myData.taxa = filterTaxaByIds(myData.taxa, this.props.taxonSelection);
+      myData.taxa = filterTaxaByIds(myData.taxa, this.props.taxonSelection)
     }
 
     // Set statements with undefined frequencies to frequency=1 (i.e. always true)
     myData.statements = myData.statements.map((statement) => {
       if (statement.frequency === undefined) {
-        statement.frequency = 1;
+        statement.frequency = 1
       }
-      return statement;
-    });
-
+      return statement
+    })
 
     // Add conflicts for taxa that have no answer for the alternative, but do for the character
-    let addStatements = [];
+    let addStatements = []
     myData.characters.forEach((character) => {
       const taxaWithCharacter = myData.statements
         .filter((sm) => sm.character === character.id)
-        .map((sm) => sm.taxon);
+        .map((sm) => sm.taxon)
 
       character.states.forEach((state) => {
         const taxaWithAlternative = myData.statements
           .filter((sm) => sm.value === state.id)
-          .map((sm) => sm.taxon);
+          .map((sm) => sm.taxon)
 
         const addTaxa = [
           ...new Set(
-            taxaWithCharacter.filter(
-              (tx) => !taxaWithAlternative.includes(tx)
-            )
-          ),
-        ];
+            taxaWithCharacter.filter((tx) => !taxaWithAlternative.includes(tx))
+          )
+        ]
 
         for (let taxon of addTaxa) {
           addStatements.push({
@@ -242,18 +221,18 @@ class Identification extends Component {
             taxon: taxon,
             character: character.id,
             value: state.id,
-            frequency: 0,
-          });
+            frequency: 0
+          })
         }
-      });
-    });
-    myData.statements = myData.statements.concat(addStatements);
+      })
+    })
+    myData.statements = myData.statements.concat(addStatements)
 
-    myData = inferAlternatives(myData);
+    myData = inferAlternatives(myData)
 
     // Give an empty answer to trigger logic
-    myData = giveAnswers(myData, []);
-    myData.taxaCount = myData.relevantTaxaCount;
+    myData = giveAnswers(myData, [])
+    myData.taxaCount = myData.relevantTaxaCount
 
     // myData.characters = getCharacterRelevances(myData);
 
@@ -261,131 +240,143 @@ class Identification extends Component {
       myData.language = myData.language[0]
     }
 
-    this.setState(myData);
+    this.setState(myData)
   }
-
 
   getKey = (filename) => {
     fetch(filename)
       .then((response) => response.json())
       .then((data) => {
         this.loadKey(data)
-      });
-  };
+      })
+  }
 
   render() {
-
-    const { value } = this.state;
+    const { value } = this.state
     // If there is a content element, the player is part of the editor and it's the content element size that counts. If not, it's the screen
 
-    getScreenSizes();
-
+    getScreenSizes()
 
     const answered = this.state.characters.filter(
       (character) => character.isAnswered
-    );
+    )
 
     const questions = this.state.characters.filter(
       (character) => !character.isAnswered && character.relevant !== false
-    );
+    )
 
     const iconItem = (icon, text, number) => {
       if (number >= 0) {
         return (
-          <span style={{ justifyContent: "center", display: "flex" }}>
-            <span style={{ paddingRight: "6px" }}>{icon}</span>{" "}
-            {!reallySmall && text + " "}
-            ({number})
+          <span style={{ justifyContent: 'center', display: 'flex' }}>
+            <span style={{ paddingRight: '6px' }}>{icon}</span>{' '}
+            {!reallySmall && text + ' '}({number})
           </span>
-        );
+        )
       }
       return (
-        <span style={{ justifyContent: "center", display: "flex" }}>
-          <span style={{ paddingRight: "6px" }}>{icon}</span>{" "}
+        <span style={{ justifyContent: 'center', display: 'flex' }}>
+          <span style={{ paddingRight: '6px' }}>{icon}</span>{' '}
           {!reallySmall && text}
         </span>
-      );
-    };
+      )
+    }
 
     const ButtonInTabs = ({ className, onClick, children }) => {
       return (
         <Typography
-          variant="overline"
+          variant='overline'
           className={className}
           onClick={onClick}
           children={children}
-          style={{
-            paddingTop: "8px",
-            opacity: "0.7",
-            fontSize: "0.875rem",
-            fontWeight: "500",
-            lineHeight: "1.75",
+          sx={{
+            paddingTop: '8px',
+            opacity: '0.7',
+            fontSize: '0.875rem',
+            fontWeight: '500',
+            lineHeight: '1.75'
           }}
         ></Typography>
-      );
-    };
+      )
+    }
 
     return (
-      <div style={{ display: "flex", flexGrow: 1 }}>
-
-        <Modal modalObject={this.state.modalObject} setModal={this.setModal} language={this.state.language} />
+      <div style={{ display: 'flex', flexGrow: 1 }}>
+        <Modal
+          modalObject={this.state.modalObject}
+          setModal={this.setModal}
+          language={this.state.language}
+        />
 
         <AppBar
-          position="absolute"
-          style={{ backgroundColor: "#f57c00", zIndex: 1 }}
+          position='absolute'
+          sx={{ backgroundColor: '#f57c00', zIndex: 1 }}
         >
-          <Tabs value={value} onChange={this.handleChange}>
+          <Tabs
+            value={value}
+            onChange={this.handleChange}
+            sx={{
+              '& .Mui-selected': {
+                color: 'white !important'
+              },
+              '& .MuiTabs-indicator': {
+                backgroundColor: 'white !important'
+              }
+            }}
+          >
             <Tab
-              label={iconItem(<BeenhereIcon />, "Mine svar", answered.length)}
+              label={iconItem(<BeenhereIcon />, 'Mine svar', answered.length)}
             />
             <Tab
               label={iconItem(
                 <VpnKeyIcon />,
-                "Ubesvart",
+                'Ubesvart',
                 this.state.relevantTaxaCount > 1 ? questions.length : 0
               )}
             />
 
             {/* <Tab label={iconItem(<AddAPhotoIcon />, "Auto id")} /> */}
 
-            {!wideScreen &&
+            {!wideScreen && (
               <Tab
                 value={3}
                 label={iconItem(
                   <ForestIcon />,
-                  "Taksa",
+                  'Taksa',
                   this.state.relevantTaxaCount
                 )}
               />
-            }
+            )}
 
             <ButtonInTabs
               value={4}
               onClick={this.setModal.bind(this, { about: true })}
             >
-              <span style={{ cursor: "pointer" }}>
-                {iconItem(<InfoIcon />, "OM")}
+              <span style={{ cursor: 'pointer', color: "rgba(0, 0, 0, 0.6)" }}>
+                {iconItem(<InfoIcon />, 'OM')}
               </span>
               {/* <InfoIcon style={{ marginLeft: "3em" }} /> */}
             </ButtonInTabs>
           </Tabs>
         </AppBar>
 
-        {Array.isArray(this.state.language) &&
-          <main style={{ width: "100%", paddingTop: 65, flexGrow: 1 }}>
+        {Array.isArray(this.state.language) && (
+          <main style={{ width: '100%', paddingTop: 65, flexGrow: 1 }}>
             Choose language
           </main>
-        }
-
+        )}
 
         {!Array.isArray(this.state.language) && this.state.taxa.length && (
-          <main style={{ width: "100%", paddingTop: 45, flexGrow: 1 }}>
+          <main style={{ width: '100%', paddingTop: 45, flexGrow: 1 }}>
             <TabPanel value={value} index={0}>
               {answered.length ? (
                 <div>
                   <Button
-                    className="button--red"
-                    style={{ marginBottom: 25 }}
+                    variant='contained'
+                    color='error'
+                    sx={{
+                      marginBottom: 25
+                    }}
                     onClick={this.resetAnswers}
                   >
                     <RestoreIcon /> Tilbakestill alle svar
@@ -404,10 +395,10 @@ class Identification extends Component {
                 </div>
               ) : (
                 <span>
-                  <Typography variant="h5" component="h5">
+                  <Typography variant='h5' component='h5'>
                     Ingen svar ennå
                   </Typography>
-                  <Typography variant="subtitle1">
+                  <Typography variant='subtitle1'>
                     Svar på spørsmålene i nøkkelen for å identifisere arten.
                   </Typography>
                 </span>
@@ -428,7 +419,7 @@ class Identification extends Component {
 
               {this.state.relevantTaxaCount === 1 && (
                 <div>
-                  <Typography variant="h5" component="h5">
+                  <Typography variant='h5' component='h5'>
                     Svar funnet!
                   </Typography>
                   <Taxon
@@ -450,16 +441,14 @@ class Identification extends Component {
             />
           </TabPanel> */}
             <TabPanel value={value} index={3}>
-              <TreeView
-                defaultExpanded={["relevant"].concat(getTaxonAllIds(this.state.taxa))}
-                defaultCollapseIcon={<ExpandMoreIcon />}
-                defaultExpandIcon={<ChevronRightIcon />}
+              <SimpleTreeView
                 disableSelection={true}
+                expandedItems={['relevant']}
               >
                 <TreeItem
-                  nodeId="relevant"
+                  itemId='relevant'
                   label={
-                    <Typography variant="h5" component="h5">
+                    <Typography variant='h5' component='h5'>
                       Mulige utfall ({this.state.relevantTaxaCount})
                     </Typography>
                   }
@@ -473,15 +462,15 @@ class Identification extends Component {
                         taxon={taxon}
                         media={this.state.mediaElements}
                         key={taxon.id}
-                        filter="relevant"
+                        filter='relevant'
                         language={this.state.language}
                       />
                     ))}
                 </TreeItem>
                 <TreeItem
-                  nodeId="irrelevant"
+                  itemId='irrelevant'
                   label={
-                    <Typography variant="h5" component="h5">
+                    <Typography variant='h5' component='h5'>
                       Utelukket (
                       {this.state.taxaCount - this.state.relevantTaxaCount})
                     </Typography>
@@ -496,41 +485,34 @@ class Identification extends Component {
                         media={this.state.mediaElements}
                         taxon={taxon}
                         key={taxon.id}
-                        filter="irrelevant"
+                        filter='irrelevant'
                         language={this.state.language}
                       />
                     ))}
                 </TreeItem>
-              </TreeView>
+              </SimpleTreeView>
             </TabPanel>
           </main>
         )}
 
-        {
-
-          wideScreen &&
-
-          <Card
-            style={{ marginTop: 50, minWidth: 400, zIndex: 0 }}
-          >
+        {wideScreen && (
+          <Card style={{ marginTop: 50, minWidth: 400, zIndex: 0 }}>
             <Box
               style={{
                 width: 350,
                 padding: 20,
                 marginTop: 50,
-                overflow: "auto",
+                overflow: 'auto'
               }}
             >
-              <TreeView
-                defaultExpanded={["relevant"].concat(getTaxonAllIds(this.state.taxa))}
-                defaultCollapseIcon={<ExpandMoreIcon />}
-                defaultExpandIcon={<ChevronRightIcon />}
+              <SimpleTreeView
                 disableSelection={true}
+                expandedItems={['relevant']}
               >
                 <TreeItem
-                  nodeId="relevant"
+                  itemId='relevant'
                   label={
-                    <Typography variant="h5" component="h5">
+                    <Typography variant='h5' component='h5'>
                       Mulige utfall ({this.state.relevantTaxaCount})
                     </Typography>
                   }
@@ -544,15 +526,15 @@ class Identification extends Component {
                         taxon={taxon}
                         media={this.state.mediaElements}
                         key={taxon.id}
-                        filter="relevant"
+                        filter='relevant'
                         language={this.state.language}
                       />
                     ))}
                 </TreeItem>
                 <TreeItem
-                  nodeId="irrelevant"
+                  itemId='irrelevant'
                   label={
-                    <Typography variant="h5" component="h5">
+                    <Typography variant='h5' component='h5'>
                       Utelukket (
                       {this.state.taxaCount - this.state.relevantTaxaCount})
                     </Typography>
@@ -567,18 +549,18 @@ class Identification extends Component {
                         taxon={taxon}
                         media={this.state.mediaElements}
                         key={taxon.id}
-                        filter="irrelevant"
+                        filter='irrelevant'
                         language={this.state.language}
                       />
                     ))}
                 </TreeItem>
-              </TreeView>
+              </SimpleTreeView>
             </Box>
           </Card>
-        }
+        )}
       </div>
-    );
+    )
   }
 }
 
-export default Identification;
+export default IdentificationInterface
