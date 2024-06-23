@@ -1,6 +1,6 @@
 {
   "name": "@artsdatabanken/clavis-viewer-web",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Made with create-react-library",
   "author": "wouterkoch",
   "license": "MIT",
@@ -9,7 +9,7 @@
   "module": "dist/index.modern.js",
   "source": "src/index.js",
   "engines": {
-    "node": ">=10"
+    "node": ">=20"
   },
   "scripts": {
     "build": "microbundle-crl --no-compress --format modern,cjs",

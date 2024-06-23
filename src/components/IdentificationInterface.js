@@ -301,7 +301,7 @@ class IdentificationInterface extends Component {
     }
 
     return (
-      <div style={{ display: 'flex', flexGrow: 1 }}>
+      <div style={{ display: 'flex', flexGrow: 1, height: '100%' }}>
         <Modal
           modalObject={this.state.modalObject}
           setModal={this.setModal}
@@ -352,7 +352,7 @@ class IdentificationInterface extends Component {
               value={4}
               onClick={this.setModal.bind(this, { about: true })}
             >
-              <span style={{ cursor: 'pointer', color: "rgba(0, 0, 0, 0.6)" }}>
+              <span style={{ cursor: 'pointer', color: 'rgba(0, 0, 0, 0.6)' }}>
                 {iconItem(<InfoIcon />, 'OM')}
               </span>
               {/* <InfoIcon style={{ marginLeft: "3em" }} /> */}
@@ -361,14 +361,32 @@ class IdentificationInterface extends Component {
         </AppBar>
 
         {Array.isArray(this.state.language) && (
-          <main style={{ width: '100%', paddingTop: 65, flexGrow: 1 }}>
+          <main
+            style={{
+              width: '100%',
+              overflow: 'scroll',
+              marginTop: 45,
+              flexGrow: 1
+            }}
+          >
             Choose language
           </main>
         )}
 
         {!Array.isArray(this.state.language) && this.state.taxa.length && (
-          <main style={{ width: '100%', paddingTop: 45, flexGrow: 1 }}>
-            <TabPanel value={value} index={0}>
+          <main
+            style={{
+              width: '100%',
+              overflow: 'scroll',
+              marginTop: 45,
+              flexGrow: 1
+            }}
+          >
+            <TabPanel
+              value={value}
+              index={0}
+              sx={{ height: '100%', overflow: 'scroll' }}
+            >
               {answered.length ? (
                 <div>
                   <Button
@@ -404,7 +422,11 @@ class IdentificationInterface extends Component {
                 </span>
               )}
             </TabPanel>
-            <TabPanel value={value} index={1}>
+            <TabPanel
+              value={value}
+              index={1}
+              sx={{ height: '100%', overflow: 'scroll' }}
+            >
               {this.state.relevantTaxaCount > 1 &&
                 questions.map((character) => (
                   <Character
@@ -440,7 +462,11 @@ class IdentificationInterface extends Component {
               predictions={this.state.predictions}
             />
           </TabPanel> */}
-            <TabPanel value={value} index={3}>
+            <TabPanel
+              value={value}
+              index={3}
+              sx={{ height: '100%', overflow: 'scroll' }}
+            >
               <SimpleTreeView
                 disableSelection={true}
                 expandedItems={['relevant']}
@@ -496,12 +522,18 @@ class IdentificationInterface extends Component {
         )}
 
         {wideScreen && (
-          <Card style={{ marginTop: 50, minWidth: 400, zIndex: 0 }}>
+          <Card
+            style={{
+              marginTop: 45,
+              minWidth: 400,
+              zIndex: 0,
+              overflow: 'scroll'
+            }}
+          >
             <Box
               style={{
                 width: 350,
                 padding: 20,
-                marginTop: 50,
                 overflow: 'auto'
               }}
             >
