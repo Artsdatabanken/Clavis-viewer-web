@@ -132,10 +132,15 @@ const setTaxaConflicts = (taxa, state, relevantStatements) => {
 };
 
 const setFact = (stateObject, stateId, value) => {
+  if (!stateObject.characters) {
+    console.error('stateObject.characters is undefined');
+    return stateObject;
+  }
+
   // give the alternative the new value, remembering the old one
   stateObject.characters = stateObject.characters.map((character) => {
     let isTargetCharacter = false;
-    character.states.map((state) => {
+    character.states = character.states.map((state) => {
       if (state.id === stateId) {
         state.answerIs = value;
         isTargetCharacter = true;
@@ -159,11 +164,6 @@ const setFact = (stateObject, stateId, value) => {
     return character;
   });
 
-
-
-
-
-
   let relevantAlternative;
 
   for (let c of stateObject.characters) {
@@ -171,6 +171,11 @@ const setFact = (stateObject, stateId, value) => {
     if (relevantAlternative) {
       break;
     }
+  }
+
+  if (!stateObject.statements) {
+    console.error('stateObject.statements is undefined');
+    return stateObject;
   }
 
   let relevantStatements = stateObject.statements.filter(
