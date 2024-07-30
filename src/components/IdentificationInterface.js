@@ -115,7 +115,7 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
     })
   }
 
-  const setModalObject = (newModalObject) => {
+  const updateModalObject = (newModalObject) => {
     if (newModalObject.taxon) {
       newModalObject.keys = keys
       newModalObject.key = { id: state.id }
@@ -291,9 +291,9 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
   return (
       <div style={{ display: 'flex', flexGrow: 1, height: '100%' }}>
         <Modal
-          modalObject={this.state.modalObject}
-          setModal={this.setModal}
-          language={this.state.language}
+          modalObject={modalObject}
+          setModal={updateModalObject}
+          language={state.language}
         />
 
         <AppBar
@@ -302,7 +302,7 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
         >
           <Tabs
             value={value}
-            onChange={this.handleChange}
+            onChange={handleChange}
             sx={{
               '& .Mui-selected': {
                 color: 'white !important'
@@ -318,8 +318,8 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
             <Tab
               label={iconItem(
                 <VpnKeyIcon />,
-                this.props.t('unanswered'),
-                this.state.relevantTaxaCount > 1 ? questions.length : 0
+                t('unanswered'),
+                state.relevantTaxaCount > 1 ? questions.length : 0
               )}
             />
 
@@ -331,14 +331,14 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
                 label={iconItem(
                   <ForestIcon />,
                   'Taksa',
-                  this.state.relevantTaxaCount
+                  state.relevantTaxaCount
                 )}
               />
             )}
 
             <ButtonInTabs
               value={4}
-              onClick={this.setModal.bind(this, { about: true })}
+              onClick={() => updateModalObject({ about: true })}
             >
               <span style={{ cursor: 'pointer', color: 'rgba(0, 0, 0, 0.6)' }}>
                 {iconItem(<InfoIcon />, 'OM')}
