@@ -357,6 +357,10 @@ const dismissAllExceptCommonTaxon = (taxa, taxaToKeep) => {
 };
 
 const getResultTaxa = (taxon) => {
+  if (!taxon) {
+    return null;
+  }
+
   if (Array.isArray(taxon)) {
     return taxon
       .map((t) => getResultTaxa(t))
@@ -424,23 +428,25 @@ export const giveAnswers = (stateObject, answers) => {
 
   if (stateObject.taxa) {
     stateObject.relevantTaxaCount = getRelevantTaxaCount(stateObject.taxa);
+
+    // Show the results if there is one taxon left, or no questions left to ask
+    if (
+      stateObject.relevantTaxaCount === 1 ||
+      !stateObject.characters.reduce(
+        (count, char) => count + (!char.isAnswered && char.relevant !== false),
+        0
+      )
+    ) {
+      stateObject.results = getResultTaxa(stateObject.taxa);
+      stateObject.modalObject = { results: stateObject.results };
+      stateObject.modalObject.keys = stateObject.keys;
+      stateObject.modalObject.key = stateObject.id;
+    }
   } else {
     console.error('stateObject.taxa is undefined in giveAnswers');
     stateObject.relevantTaxaCount = 0;
-  }
-
-  // Show the results if there is one taxon left, or no questions left to ask
-  if (
-    stateObject.relevantTaxaCount === 1 ||
-    !stateObject.characters.reduce(
-      (count, char) => count + (!char.isAnswered && char.relevant !== false),
-      0
-    )
-  ) {
-    stateObject.results = getResultTaxa(stateObject.taxa);
-    stateObject.modalObject = { results: stateObject.results };
-    stateObject.modalObject.keys = stateObject.keys;
-    stateObject.modalObject.key = stateObject.id;
+    stateObject.results = [];
+    stateObject.modalObject = { results: [] };
   }
   return stateObject;
 };
