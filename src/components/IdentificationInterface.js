@@ -337,7 +337,7 @@ class IdentificationInterface extends Component {
             <Tab
               label={iconItem(
                 <VpnKeyIcon />,
-                this.props.t('unanswered', 'Ubesvart'),
+                this.props.t('unanswered'),
                 this.state.relevantTaxaCount > 1 ? questions.length : 0
               )}
             />
