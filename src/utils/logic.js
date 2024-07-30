@@ -104,6 +104,16 @@ const setTaxaConflicts = (taxa, state, relevantStatements) => {
     return [];
   }
 
+  if (!state) {
+    console.error('state is undefined in setTaxaConflicts');
+    return taxa;
+  }
+
+  if (!Array.isArray(relevantStatements)) {
+    console.error('relevantStatements is not an array in setTaxaConflicts');
+    return taxa;
+  }
+
   return taxa.map((taxon) => {
     if (!taxon.conflicts) {
       taxon.conflicts = [];
@@ -423,6 +433,11 @@ export const giveAnswers = (stateObject, answers) => {
     stateObject.taxa = [];
   }
 
+  if (!stateObject.characters) {
+    console.error('stateObject.characters is undefined in giveAnswers');
+    stateObject.characters = [];
+  }
+
   if (!Array.isArray(answers)) {
     console.error('answers is not an array in giveAnswers');
     return stateObject;
@@ -570,7 +585,12 @@ export const toggleTaxonDismissed = (stateObject, taxonId) => {
 export const inferAlternatives = (stateObject) => {
   if (!stateObject.statements) {
     console.error('stateObject.statements is undefined');
-    return stateObject;
+    stateObject.statements = [];
+  }
+
+  if (!stateObject.taxa) {
+    console.error('stateObject.taxa is undefined');
+    stateObject.taxa = [];
   }
 
   let relevantStatements = stateObject.statements.filter((sm) =>
