@@ -16,6 +16,7 @@ import TaxonTreeItem from './TaxonTreeItem'
 import Character from './Character'
 import Modal from './Modal'
 
+
 import {
   inferAlternatives,
   initElement,
@@ -28,6 +29,7 @@ import {
 
 let wideScreen = false
 let reallySmall = false
+
 
 const getScreenSizes = () => {
   wideScreen = document.getElementById('content')
