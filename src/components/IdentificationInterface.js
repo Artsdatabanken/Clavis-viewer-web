@@ -77,7 +77,7 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
     description: '',
     descriptionDetails: '',
     descriptionUrl: '',
-    lastModified: '',
+    lastModified: ''
   })
 
   useEffect(() => {
@@ -102,7 +102,7 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
     const handleResize = () => {
       getScreenSizes()
       // Force re-render
-      setState(prevState => ({ ...prevState }))
+      setState((prevState) => ({ ...prevState }))
     }
 
     window.addEventListener('resize', handleResize)
@@ -255,7 +255,7 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
 
     setCharacters(myData.characters)
     setTaxa(myData.taxa)
-    setState(prevState => ({
+    setState((prevState) => ({
       ...prevState,
       language: myData.language,
       mediaElements: myData.mediaElements,
@@ -271,7 +271,7 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
       description: myData.description,
       descriptionDetails: myData.descriptionDetails,
       descriptionUrl: myData.descriptionUrl,
-      lastModified: myData.lastModified,
+      lastModified: myData.lastModified
     }))
   }
 
@@ -327,134 +327,102 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
   }
 
   return (
-      <div style={{ display: 'flex', flexGrow: 1, height: '100%' }}>
-        <Modal
-          modalObject={modalObject}
-          setModal={updateModalObject}
-          language={state.language}
-        />
+    <div style={{ display: 'flex', flexGrow: 1, height: '100%' }}>
+      <Modal
+        modalObject={modalObject}
+        setModal={updateModalObject}
+        language={state.language}
+      />
 
-        <AppBar
-          position='absolute'
-          sx={{ backgroundColor: '#f57c00', zIndex: 1 }}
+      <AppBar
+        position='absolute'
+        sx={{ backgroundColor: '#f57c00', zIndex: 1 }}
+      >
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          sx={{
+            '& .Mui-selected': {
+              color: 'white !important'
+            },
+            '& .MuiTabs-indicator': {
+              backgroundColor: 'white !important'
+            }
+          }}
         >
-          <Tabs
-            value={value}
-            onChange={handleChange}
-            sx={{
-              '& .Mui-selected': {
-                color: 'white !important'
-              },
-              '& .MuiTabs-indicator': {
-                backgroundColor: 'white !important'
-              }
-            }}
-          >
-            <Tab
-              label={iconItem(<BeenhereIcon />, 'Mine svar', answered.length)}
-            />
-            <Tab
-              label={iconItem(
-                <VpnKeyIcon />,
-                t('unanswered'),
-                state.relevantTaxaCount > 1 ? questions.length : 0
-              )}
-            />
-
-            {/* <Tab label={iconItem(<AddAPhotoIcon />, "Auto id")} /> */}
-
-            {!wideScreen && (
-              <Tab
-                value={3}
-                label={iconItem(
-                  <ForestIcon />,
-                  'Taksa',
-                  state.relevantTaxaCount
-                )}
-              />
+          <Tab
+            label={iconItem(<BeenhereIcon />, 'Mine svar', answered.length)}
+          />
+          <Tab
+            label={iconItem(
+              <VpnKeyIcon />,
+              t('unanswered'),
+              state.relevantTaxaCount > 1 ? questions.length : 0
             )}
+          />
 
-            <ButtonInTabs
-              value={4}
-              onClick={() => updateModalObject({ about: true })}
-            >
-              <span style={{ cursor: 'pointer', color: 'rgba(0, 0, 0, 0.6)' }}>
-                {iconItem(<InfoIcon />, 'OM')}
-              </span>
-              {/* <InfoIcon style={{ marginLeft: "3em" }} /> */}
-            </ButtonInTabs>
-          </Tabs>
-        </AppBar>
+          {/* <Tab label={iconItem(<AddAPhotoIcon />, "Auto id")} /> */}
 
-        {Array.isArray(state.language) && (
-          <main
-            style={{
-              width: '100%',
-              overflow: 'scroll',
-              marginTop: 45,
-              flexGrow: 1
-            }}
+          {!wideScreen && (
+            <Tab
+              value={3}
+              label={iconItem(<ForestIcon />, 'Taksa', state.relevantTaxaCount)}
+            />
+          )}
+
+          <ButtonInTabs
+            value={4}
+            onClick={() => updateModalObject({ about: true })}
           >
-            Choose language
-          </main>
-        )}
+            <span style={{ cursor: 'pointer', color: 'rgba(0, 0, 0, 0.6)' }}>
+              {iconItem(<InfoIcon />, 'OM')}
+            </span>
+            {/* <InfoIcon style={{ marginLeft: "3em" }} /> */}
+          </ButtonInTabs>
+        </Tabs>
+      </AppBar>
 
-        {!Array.isArray(state.language) && taxa.length > 0 && (
-          <main
-            style={{
-              width: '100%',
-              overflow: 'scroll',
-              marginTop: 45,
-              flexGrow: 1
-            }}
+      {Array.isArray(state.language) && (
+        <main
+          style={{
+            width: '100%',
+            overflow: 'scroll',
+            marginTop: 45,
+            flexGrow: 1
+          }}
+        >
+          Choose language
+        </main>
+      )}
+
+      {!Array.isArray(state.language) && taxa.length > 0 && (
+        <main
+          style={{
+            width: '100%',
+            overflow: 'scroll',
+            marginTop: 45,
+            flexGrow: 1
+          }}
+        >
+          <TabPanel
+            value={value}
+            index={0}
+            sx={{ height: '100%', overflow: 'scroll' }}
           >
-            <TabPanel
-              value={value}
-              index={0}
-              sx={{ height: '100%', overflow: 'scroll' }}
-            >
-              {answered.length ? (
-                <div>
-                  <Button
-                    variant='contained'
-                    color='error'
-                    sx={{
-                      marginBottom: 25
-                    }}
-                    onClick={resetAnswers}
-                  >
-                    <RestoreIcon /> Tilbakestill alle svar
-                  </Button>
+            {answered.length ? (
+              <div>
+                <Button
+                  variant='contained'
+                  color='error'
+                  sx={{
+                    marginBottom: 25
+                  }}
+                  onClick={resetAnswers}
+                >
+                  <RestoreIcon /> Tilbakestill alle svar
+                </Button>
 
-                  {answered.map((character) => (
-                    <Character
-                      character={character}
-                      key={character.id}
-                      giveAnswer={giveAnswer}
-                      undoAnswer={undoAnswer}
-                      setModal={updateModalObject}
-                      media={state.mediaElements}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <span>
-                  <Typography variant='h5' component='h5'>
-                    Ingen svar ennå
-                  </Typography>
-                  <Typography variant='subtitle1'>
-                    Svar på spørsmålene i nøkkelen for å identifisere arten.
-                  </Typography>
-                </span>
-              )}
-            </TabPanel>
-            <TabPanel
-              value={value}
-              index={1}
-              sx={{ height: '100%', overflow: 'scroll' }}
-            >
-              {state.relevantTaxaCount > 1 &&
-                questions.map((character) => (
+                {answered.map((character) => (
                   <Character
                     character={character}
                     key={character.id}
@@ -464,153 +432,179 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
                     media={state.mediaElements}
                   />
                 ))}
+              </div>
+            ) : (
+              <span>
+                <Typography variant='h5' component='h5'>
+                  Ingen svar ennå
+                </Typography>
+                <Typography variant='subtitle1'>
+                  Svar på spørsmålene i nøkkelen for å identifisere arten.
+                </Typography>
+              </span>
+            )}
+          </TabPanel>
+          <TabPanel
+            value={value}
+            index={1}
+            sx={{ height: '100%', overflow: 'scroll' }}
+          >
+            {state.relevantTaxaCount > 1 &&
+              questions.map((character) => (
+                <Character
+                  character={character}
+                  key={character.id}
+                  giveAnswer={giveAnswer}
+                  undoAnswer={undoAnswer}
+                  setModal={updateModalObject}
+                  media={state.mediaElements}
+                />
+              ))}
 
-              {state.relevantTaxaCount === 1 && (
-                <div>
-                  <Typography variant='h5' component='h5'>
-                    Svar funnet!
-                  </Typography>
-                  <Taxon
-                    taxon={state.results[0]}
-                    mediaElements={state.mediaElements}
-                    setModal={updateModalObject}
-                    toggleDismissTaxon={toggleDismissTaxon}
-                    standalone={true}
-                    language={state.language}
-                  />
-                </div>
-              )}
-            </TabPanel>
-            <TabPanel
-              value={value}
-              index={3}
-              sx={{ height: '100%', overflow: 'scroll' }}
+            {state.relevantTaxaCount === 1 && (
+              <div>
+                <Typography variant='h5' component='h5'>
+                  Svar funnet!
+                </Typography>
+                <Taxon
+                  taxon={state.results[0]}
+                  mediaElements={state.mediaElements}
+                  setModal={updateModalObject}
+                  toggleDismissTaxon={toggleDismissTaxon}
+                  standalone={true}
+                  language={state.language}
+                />
+              </div>
+            )}
+          </TabPanel>
+          <TabPanel
+            value={value}
+            index={3}
+            sx={{ height: '100%', overflow: 'scroll' }}
+          >
+            <SimpleTreeView
+              disableSelection={true}
+              expandedItems={['relevant']}
             >
-              <SimpleTreeView
-                disableSelection={true}
-                expandedItems={['relevant']}
+              <TreeItem
+                itemId='relevant'
+                label={
+                  <Typography variant='h5' component='h5'>
+                    Mulige utfall ({state.relevantTaxaCount})
+                  </Typography>
+                }
               >
-                <TreeItem
-                  itemId='relevant'
-                  label={
-                    <Typography variant='h5' component='h5'>
-                      Mulige utfall ({state.relevantTaxaCount})
-                    </Typography>
-                  }
-                >
-                  {taxa
-                    .filter((taxon) => taxon.isRelevant)
-                    .map((taxon) => (
-                      <TaxonTreeItem
-                        toggleDismissTaxon={toggleDismissTaxon}
-                        setModal={updateModalObject}
-                        taxon={taxon}
-                        media={state.mediaElements}
-                        key={taxon.id}
-                        filter='relevant'
-                        language={state.language}
-                      />
-                    ))}
-                </TreeItem>
-                <TreeItem
-                  itemId='irrelevant'
-                  label={
-                    <Typography variant='h5' component='h5'>
-                      Utelukket (
-                      {state.taxaCount - state.relevantTaxaCount})
-                    </Typography>
-                  }
-                >
-                  {taxa
-                    .filter((taxon) => taxon.isIrrelevant)
-                    .map((taxon) => (
-                      <TaxonTreeItem
-                        toggleDismissTaxon={toggleDismissTaxon}
-                        setModal={updateModalObject}
-                        media={state.mediaElements}
-                        taxon={taxon}
-                        key={taxon.id}
-                        filter='irrelevant'
-                        language={state.language}
-                      />
-                    ))}
-                </TreeItem>
-              </SimpleTreeView>
-            </TabPanel>
-          </main>
-        )}
+                {taxa
+                  .filter((taxon) => taxon.isRelevant)
+                  .map((taxon) => (
+                    <TaxonTreeItem
+                      toggleDismissTaxon={toggleDismissTaxon}
+                      setModal={updateModalObject}
+                      taxon={taxon}
+                      media={state.mediaElements}
+                      key={taxon.id}
+                      filter='relevant'
+                      language={state.language}
+                    />
+                  ))}
+              </TreeItem>
+              <TreeItem
+                itemId='irrelevant'
+                label={
+                  <Typography variant='h5' component='h5'>
+                    Utelukket ({state.taxaCount - state.relevantTaxaCount})
+                  </Typography>
+                }
+              >
+                {taxa
+                  .filter((taxon) => taxon.isIrrelevant)
+                  .map((taxon) => (
+                    <TaxonTreeItem
+                      toggleDismissTaxon={toggleDismissTaxon}
+                      setModal={updateModalObject}
+                      media={state.mediaElements}
+                      taxon={taxon}
+                      key={taxon.id}
+                      filter='irrelevant'
+                      language={state.language}
+                    />
+                  ))}
+              </TreeItem>
+            </SimpleTreeView>
+          </TabPanel>
+        </main>
+      )}
 
-        {wideScreen && (
-          <Card
+      {wideScreen && (
+        <Card
+          style={{
+            marginTop: 45,
+            minWidth: 400,
+            zIndex: 0,
+            overflow: 'scroll'
+          }}
+        >
+          <Box
             style={{
-              marginTop: 45,
-              minWidth: 400,
-              zIndex: 0,
-              overflow: 'scroll'
+              width: 350,
+              padding: 20,
+              overflow: 'auto'
             }}
           >
-            <Box
-              style={{
-                width: 350,
-                padding: 20,
-                overflow: 'auto'
-              }}
+            <SimpleTreeView
+              disableSelection={true}
+              expandedItems={['relevant']}
             >
-              <SimpleTreeView
-                disableSelection={true}
-                expandedItems={['relevant']}
+              <TreeItem
+                itemId='relevant'
+                label={
+                  <Typography variant='h5' component='h5'>
+                    Mulige utfall ({state.relevantTaxaCount})
+                  </Typography>
+                }
               >
-                <TreeItem
-                  itemId='relevant'
-                  label={
-                    <Typography variant='h5' component='h5'>
-                      Mulige utfall ({state.relevantTaxaCount})
-                    </Typography>
-                  }
-                >
-                  {taxa
-                    .filter((taxon) => taxon.isRelevant)
-                    .map((taxon) => (
-                      <TaxonTreeItem
-                        toggleDismissTaxon={toggleDismissTaxon}
-                        setModal={updateModalObject}
-                        taxon={taxon}
-                        media={state.mediaElements}
-                        key={taxon.id}
-                        filter='relevant'
-                        language={state.language}
-                      />
-                    ))}
-                </TreeItem>
-                <TreeItem
-                  itemId='irrelevant'
-                  label={
-                    <Typography variant='h5' component='h5'>
-                      Utelukket (
-                      {state.taxaCount - state.relevantTaxaCount})
-                    </Typography>
-                  }
-                >
-                  {taxa
-                    .filter((taxon) => taxon.isIrrelevant)
-                    .map((taxon) => (
-                      <TaxonTreeItem
-                        toggleDismissTaxon={toggleDismissTaxon}
-                        setModal={updateModalObject}
-                        taxon={taxon}
-                        media={state.mediaElements}
-                        key={taxon.id}
-                        filter='irrelevant'
-                        language={state.language}
-                      />
-                    ))}
-                </TreeItem>
-              </SimpleTreeView>
-            </Box>
-          </Card>
-        )}
-      </div>
-    )
+                {taxa
+                  .filter((taxon) => taxon.isRelevant)
+                  .map((taxon) => (
+                    <TaxonTreeItem
+                      toggleDismissTaxon={toggleDismissTaxon}
+                      setModal={updateModalObject}
+                      taxon={taxon}
+                      media={state.mediaElements}
+                      key={taxon.id}
+                      filter='relevant'
+                      language={state.language}
+                    />
+                  ))}
+              </TreeItem>
+              <TreeItem
+                itemId='irrelevant'
+                label={
+                  <Typography variant='h5' component='h5'>
+                    Utelukket ({state.taxaCount - state.relevantTaxaCount})
+                  </Typography>
+                }
+              >
+                {taxa
+                  .filter((taxon) => taxon.isIrrelevant)
+                  .map((taxon) => (
+                    <TaxonTreeItem
+                      toggleDismissTaxon={toggleDismissTaxon}
+                      setModal={updateModalObject}
+                      taxon={taxon}
+                      media={state.mediaElements}
+                      key={taxon.id}
+                      filter='irrelevant'
+                      language={state.language}
+                    />
+                  ))}
+              </TreeItem>
+            </SimpleTreeView>
+          </Box>
+        </Card>
+      )}
+    </div>
+  )
 }
 
 export default IdentificationInterface
