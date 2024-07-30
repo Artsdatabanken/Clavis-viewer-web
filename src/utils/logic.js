@@ -423,20 +423,12 @@ export const giveAnswers = (stateObject, answers) => {
     return {};
   }
 
-  if (!stateObject.statements) {
-    console.error('stateObject.statements is undefined in giveAnswers');
-    stateObject.statements = [];
-  }
-
-  if (!stateObject.taxa) {
-    console.error('stateObject.taxa is undefined in giveAnswers');
-    stateObject.taxa = [];
-  }
-
-  if (!stateObject.characters) {
-    console.error('stateObject.characters is undefined in giveAnswers');
-    stateObject.characters = [];
-  }
+  stateObject = {
+    ...stateObject,
+    statements: stateObject.statements || [],
+    taxa: stateObject.taxa || [],
+    characters: stateObject.characters || []
+  };
 
   if (!Array.isArray(answers)) {
     console.error('answers is not an array in giveAnswers');
@@ -466,9 +458,11 @@ export const giveAnswers = (stateObject, answers) => {
       )
     ) {
       stateObject.results = getResultTaxa(stateObject.taxa);
-      stateObject.modalObject = { results: stateObject.results };
-      stateObject.modalObject.keys = stateObject.keys;
-      stateObject.modalObject.key = stateObject.id;
+      stateObject.modalObject = { 
+        results: stateObject.results,
+        keys: stateObject.keys,
+        key: stateObject.id
+      };
     }
   } else {
     console.error('stateObject.taxa is undefined in giveAnswers');
