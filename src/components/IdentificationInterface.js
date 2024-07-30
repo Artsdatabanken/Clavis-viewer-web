@@ -62,22 +62,47 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
   const [taxa, setTaxa] = useState([])
   const [value, setValue] = useState(1)
   const [modalObject, setModalObject] = useState({})
-  const [state, setState] = useState({})
+  const [state, setState] = useState({
+    language: [],
+    mediaElements: [],
+    relevantTaxaCount: 0,
+    taxaCount: 0,
+    results: [],
+    id: '',
+    classification: '',
+    title: '',
+    creators: [],
+    contributors: [],
+    publishers: [],
+    description: '',
+    descriptionDetails: '',
+    descriptionUrl: '',
+    lastModified: '',
+  })
 
   useEffect(() => {
-    if (keyId) {
-      console.log(keys.find((k) => k.id === keyId).filename)
-      getKey(keys.find((k) => k.id === keyId).filename)
-    } else if (clavis) {
-      loadKey(clavis)
-    } else {
-      console.log('No key provided')
+    const loadKeyData = async () => {
+      if (keyId) {
+        const keyFile = keys.find((k) => k.id === keyId)?.filename
+        if (keyFile) {
+          console.log(keyFile)
+          const response = await fetch(keyFile)
+          const data = await response.json()
+          loadKey(data)
+        }
+      } else if (clavis) {
+        loadKey(clavis)
+      } else {
+        console.log('No key provided')
+      }
     }
+
+    loadKeyData()
 
     const handleResize = () => {
       getScreenSizes()
       // Force re-render
-      setState({})
+      setState(prevState => ({ ...prevState }))
     }
 
     window.addEventListener('resize', handleResize)
@@ -175,23 +200,17 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
   }
 
   const loadKey = (data) => {
-    let myData = data
-
-    myData.keys = keys
-
-    myData = initElement(myData)
+    let myData = initElement({ ...data, keys })
 
     if (taxonSelection && taxonSelection.length) {
       myData.taxa = filterTaxaByIds(myData.taxa, taxonSelection)
     }
 
     // Set statements with undefined frequencies to frequency=1 (i.e. always true)
-    myData.statements = myData.statements.map((statement) => {
-      if (statement.frequency === undefined) {
-        statement.frequency = 1
-      }
-      return statement
-    })
+    myData.statements = myData.statements.map((statement) => ({
+      ...statement,
+      frequency: statement.frequency === undefined ? 1 : statement.frequency
+    }))
 
     // Add conflicts for taxa that have no answer for the alternative, but do for the character
     let addStatements = []
@@ -211,15 +230,15 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
           )
         ]
 
-        for (let taxon of addTaxa) {
-          addStatements.push({
+        addStatements = addStatements.concat(
+          addTaxa.map((taxon) => ({
             id: `statement:${state.id}_${taxon}_0`,
             taxon: taxon,
             character: character.id,
             value: state.id,
             frequency: 0
-          })
-        }
+          }))
+        )
       })
     })
     myData.statements = myData.statements.concat(addStatements)
@@ -234,7 +253,26 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
       myData.language = myData.language[0]
     }
 
-    setState(myData)
+    setCharacters(myData.characters)
+    setTaxa(myData.taxa)
+    setState(prevState => ({
+      ...prevState,
+      language: myData.language,
+      mediaElements: myData.mediaElements,
+      relevantTaxaCount: myData.relevantTaxaCount,
+      taxaCount: myData.taxaCount,
+      results: myData.results,
+      id: myData.id,
+      classification: myData.classification,
+      title: myData.title,
+      creators: myData.creators,
+      contributors: myData.contributors,
+      publishers: myData.publishers,
+      description: myData.description,
+      descriptionDetails: myData.descriptionDetails,
+      descriptionUrl: myData.descriptionUrl,
+      lastModified: myData.lastModified,
+    }))
   }
 
   const getKey = (filename) => {
@@ -348,7 +386,7 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
           </Tabs>
         </AppBar>
 
-        {Array.isArray(this.state.language) && (
+        {Array.isArray(state.language) && (
           <main
             style={{
               width: '100%',
@@ -361,7 +399,7 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
           </main>
         )}
 
-        {!Array.isArray(this.state.language) && this.state.taxa.length && (
+        {!Array.isArray(state.language) && taxa.length > 0 && (
           <main
             style={{
               width: '100%',
@@ -383,7 +421,7 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
                     sx={{
                       marginBottom: 25
                     }}
-                    onClick={this.resetAnswers}
+                    onClick={resetAnswers}
                   >
                     <RestoreIcon /> Tilbakestill alle svar
                   </Button>
@@ -392,10 +430,10 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
                     <Character
                       character={character}
                       key={character.id}
-                      giveAnswer={this.giveAnswer}
-                      undoAnswer={this.undoAnswer}
-                      setModal={this.setModal}
-                      media={this.state.mediaElements}
+                      giveAnswer={giveAnswer}
+                      undoAnswer={undoAnswer}
+                      setModal={updateModalObject}
+                      media={state.mediaElements}
                     />
                   ))}
                 </div>
@@ -415,41 +453,34 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
               index={1}
               sx={{ height: '100%', overflow: 'scroll' }}
             >
-              {this.state.relevantTaxaCount > 1 &&
+              {state.relevantTaxaCount > 1 &&
                 questions.map((character) => (
                   <Character
                     character={character}
                     key={character.id}
-                    giveAnswer={this.giveAnswer}
-                    undoAnswer={this.undoAnswer}
-                    setModal={this.setModal}
-                    media={this.state.mediaElements}
+                    giveAnswer={giveAnswer}
+                    undoAnswer={undoAnswer}
+                    setModal={updateModalObject}
+                    media={state.mediaElements}
                   />
                 ))}
 
-              {this.state.relevantTaxaCount === 1 && (
+              {state.relevantTaxaCount === 1 && (
                 <div>
                   <Typography variant='h5' component='h5'>
                     Svar funnet!
                   </Typography>
                   <Taxon
-                    taxon={this.state.results[0]}
-                    mediaElements={this.state.mediaElements}
-                    setModal={this.setModal}
-                    toggleDismissTaxon={this.toggleDismissTaxon}
+                    taxon={state.results[0]}
+                    mediaElements={state.mediaElements}
+                    setModal={updateModalObject}
+                    toggleDismissTaxon={toggleDismissTaxon}
                     standalone={true}
-                    language={this.state.language}
+                    language={state.language}
                   />
                 </div>
               )}
             </TabPanel>
-            {/* <TabPanel value={value} index={2}>
-            <AutoIdentifier
-              storeAutoId={this.storeAutoId}
-              filterTaxaByPredictions={this.filterTaxaByPredictions}
-              predictions={this.state.predictions}
-            />
-          </TabPanel> */}
             <TabPanel
               value={value}
               index={3}
@@ -463,21 +494,21 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
                   itemId='relevant'
                   label={
                     <Typography variant='h5' component='h5'>
-                      Mulige utfall ({this.state.relevantTaxaCount})
+                      Mulige utfall ({state.relevantTaxaCount})
                     </Typography>
                   }
                 >
-                  {this.state.taxa
+                  {taxa
                     .filter((taxon) => taxon.isRelevant)
                     .map((taxon) => (
                       <TaxonTreeItem
-                        toggleDismissTaxon={this.toggleDismissTaxon}
-                        setModal={this.setModal}
+                        toggleDismissTaxon={toggleDismissTaxon}
+                        setModal={updateModalObject}
                         taxon={taxon}
-                        media={this.state.mediaElements}
+                        media={state.mediaElements}
                         key={taxon.id}
                         filter='relevant'
-                        language={this.state.language}
+                        language={state.language}
                       />
                     ))}
                 </TreeItem>
@@ -486,21 +517,21 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
                   label={
                     <Typography variant='h5' component='h5'>
                       Utelukket (
-                      {this.state.taxaCount - this.state.relevantTaxaCount})
+                      {state.taxaCount - state.relevantTaxaCount})
                     </Typography>
                   }
                 >
-                  {this.state.taxa
+                  {taxa
                     .filter((taxon) => taxon.isIrrelevant)
                     .map((taxon) => (
                       <TaxonTreeItem
-                        toggleDismissTaxon={this.toggleDismissTaxon}
-                        setModal={this.setModal}
-                        media={this.state.mediaElements}
+                        toggleDismissTaxon={toggleDismissTaxon}
+                        setModal={updateModalObject}
+                        media={state.mediaElements}
                         taxon={taxon}
                         key={taxon.id}
                         filter='irrelevant'
-                        language={this.state.language}
+                        language={state.language}
                       />
                     ))}
                 </TreeItem>
@@ -533,21 +564,21 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
                   itemId='relevant'
                   label={
                     <Typography variant='h5' component='h5'>
-                      Mulige utfall ({this.state.relevantTaxaCount})
+                      Mulige utfall ({state.relevantTaxaCount})
                     </Typography>
                   }
                 >
-                  {this.state.taxa
+                  {taxa
                     .filter((taxon) => taxon.isRelevant)
                     .map((taxon) => (
                       <TaxonTreeItem
-                        toggleDismissTaxon={this.toggleDismissTaxon}
-                        setModal={this.setModal}
+                        toggleDismissTaxon={toggleDismissTaxon}
+                        setModal={updateModalObject}
                         taxon={taxon}
-                        media={this.state.mediaElements}
+                        media={state.mediaElements}
                         key={taxon.id}
                         filter='relevant'
-                        language={this.state.language}
+                        language={state.language}
                       />
                     ))}
                 </TreeItem>
@@ -556,21 +587,21 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
                   label={
                     <Typography variant='h5' component='h5'>
                       Utelukket (
-                      {this.state.taxaCount - this.state.relevantTaxaCount})
+                      {state.taxaCount - state.relevantTaxaCount})
                     </Typography>
                   }
                 >
-                  {this.state.taxa
+                  {taxa
                     .filter((taxon) => taxon.isIrrelevant)
                     .map((taxon) => (
                       <TaxonTreeItem
-                        toggleDismissTaxon={this.toggleDismissTaxon}
-                        setModal={this.setModal}
+                        toggleDismissTaxon={toggleDismissTaxon}
+                        setModal={updateModalObject}
                         taxon={taxon}
-                        media={this.state.mediaElements}
+                        media={state.mediaElements}
                         key={taxon.id}
                         filter='irrelevant'
-                        language={this.state.language}
+                        language={state.language}
                       />
                     ))}
                 </TreeItem>
