@@ -580,7 +580,6 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
         )}
       </div>
     )
-  )
 }
 
 export default IdentificationInterface
