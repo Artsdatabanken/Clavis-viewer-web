@@ -190,10 +190,14 @@ const setFact = (stateObject, stateId, value) => {
 };
 
 const answer = (stateObject, stateId, value) => {
+  if (!stateObject.characters) {
+    console.error('stateObject.characters is undefined');
+    return stateObject;
+  }
 
   // mark it as (un)answered
-  stateObject.characters.map((character) => {
-    character.states.map((state) => {
+  stateObject.characters = stateObject.characters.map((character) => {
+    character.states = character.states.map((state) => {
       if (state.id === stateId) {
         state.isAnswered = value !== undefined;
       }
@@ -202,20 +206,13 @@ const answer = (stateObject, stateId, value) => {
     return character;
   });
 
-
   // set the value of the alternative, the answered state of the character, and add/remove conflicts
   stateObject = setFact(stateObject, stateId, value);
-
-
 
   // if removing answer, for every earlier inferrence, undo with setFact
   if (value === undefined) {
     stateObject = removeInferrences(stateObject);
   }
-
-
-  // moving to giveAnswers
-  // stateObject = inferAlternatives(stateObject);
 
   return stateObject;
 };
