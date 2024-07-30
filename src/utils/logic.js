@@ -418,6 +418,11 @@ export const giveAnswers = (stateObject, answers) => {
     stateObject.statements = [];
   }
 
+  if (!stateObject.taxa) {
+    console.error('stateObject.taxa is undefined in giveAnswers');
+    stateObject.taxa = [];
+  }
+
   if (!Array.isArray(answers)) {
     console.error('answers is not an array in giveAnswers');
     return stateObject;
