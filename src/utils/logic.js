@@ -183,13 +183,17 @@ const setFact = (stateObject, stateId, value) => {
   );
 
   // add or remove conflicting *alternatives*
-  stateObject.taxa = setTaxaConflicts(
-    stateObject.taxa,
-    relevantAlternative,
-    relevantStatements
-  );
+  if (stateObject.taxa) {
+    stateObject.taxa = setTaxaConflicts(
+      stateObject.taxa,
+      relevantAlternative,
+      relevantStatements
+    );
 
-  stateObject.taxa = setTaxonRelevances(stateObject.taxa);
+    stateObject.taxa = setTaxonRelevances(stateObject.taxa);
+  } else {
+    console.error('stateObject.taxa is undefined');
+  }
 
   return stateObject;
 };
