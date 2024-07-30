@@ -423,11 +423,14 @@ export const giveAnswers = (stateObject, answers) => {
     return {};
   }
 
+  // Ensure all required properties are initialized
   stateObject = {
     ...stateObject,
     statements: stateObject.statements || [],
     taxa: stateObject.taxa || [],
-    characters: stateObject.characters || []
+    characters: stateObject.characters || [],
+    keys: stateObject.keys || [],
+    id: stateObject.id || ''
   };
 
   if (!Array.isArray(answers)) {
@@ -446,30 +449,27 @@ export const giveAnswers = (stateObject, answers) => {
 
   stateObject = inferAlternatives(stateObject);
 
-  if (stateObject.taxa) {
-    stateObject.relevantTaxaCount = getRelevantTaxaCount(stateObject.taxa);
+  stateObject.relevantTaxaCount = getRelevantTaxaCount(stateObject.taxa);
 
-    // Show the results if there is one taxon left, or no questions left to ask
-    if (
-      stateObject.relevantTaxaCount === 1 ||
-      !stateObject.characters.reduce(
-        (count, char) => count + (!char.isAnswered && char.relevant !== false),
-        0
-      )
-    ) {
-      stateObject.results = getResultTaxa(stateObject.taxa);
-      stateObject.modalObject = { 
-        results: stateObject.results,
-        keys: stateObject.keys,
-        key: stateObject.id
-      };
-    }
+  // Show the results if there is one taxon left, or no questions left to ask
+  if (
+    stateObject.relevantTaxaCount === 1 ||
+    !stateObject.characters.reduce(
+      (count, char) => count + (!char.isAnswered && char.relevant !== false),
+      0
+    )
+  ) {
+    stateObject.results = getResultTaxa(stateObject.taxa);
+    stateObject.modalObject = { 
+      results: stateObject.results,
+      keys: stateObject.keys,
+      key: stateObject.id
+    };
   } else {
-    console.error('stateObject.taxa is undefined in giveAnswers');
-    stateObject.relevantTaxaCount = 0;
     stateObject.results = [];
     stateObject.modalObject = { results: [] };
   }
+
   return stateObject;
 };
 
