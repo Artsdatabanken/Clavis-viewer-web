@@ -392,21 +392,38 @@ export const getRelevantTaxaCount = (taxa) => {
 
 // answers a set of alternatives with their values
 export const giveAnswers = (stateObject, answers) => {
-  if (!stateObject || !stateObject.statements) {
-    console.error('stateObject or stateObject.statements is undefined in giveAnswers');
-    return stateObject || {};
+  if (!stateObject) {
+    console.error('stateObject is undefined in giveAnswers');
+    return {};
+  }
+
+  if (!stateObject.statements) {
+    console.error('stateObject.statements is undefined in giveAnswers');
+    stateObject.statements = [];
+  }
+
+  if (!Array.isArray(answers)) {
+    console.error('answers is not an array in giveAnswers');
+    return stateObject;
   }
 
   answers.forEach((a) => {
-    let id, value;
-    [id, value] = a;
-
-    stateObject = answer(stateObject, id, value);
+    if (Array.isArray(a) && a.length === 2) {
+      let [id, value] = a;
+      stateObject = answer(stateObject, id, value);
+    } else {
+      console.error('Invalid answer format in giveAnswers');
+    }
   });
 
   stateObject = inferAlternatives(stateObject);
 
-  stateObject.relevantTaxaCount = getRelevantTaxaCount(stateObject.taxa);
+  if (stateObject.taxa) {
+    stateObject.relevantTaxaCount = getRelevantTaxaCount(stateObject.taxa);
+  } else {
+    console.error('stateObject.taxa is undefined in giveAnswers');
+    stateObject.relevantTaxaCount = 0;
+  }
 
   // Show the results if there is one taxon left, or no questions left to ask
   if (
