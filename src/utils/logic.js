@@ -99,7 +99,16 @@ const removeInferrences = (stateObject) => {
 };
 
 const setTaxaConflicts = (taxa, state, relevantStatements) => {
+  if (!Array.isArray(taxa)) {
+    console.error('taxa is not an array in setTaxaConflicts');
+    return [];
+  }
+
   return taxa.map((taxon) => {
+    if (!taxon.conflicts) {
+      taxon.conflicts = [];
+    }
+
     if (
       state.answerIs !== undefined &&
       !taxon.conflicts.includes(state.id) &&
@@ -116,7 +125,6 @@ const setTaxaConflicts = (taxa, state, relevantStatements) => {
           return conflict !== state.id
         }
       );
-
     }
 
     if (taxon.children && taxon.children.length) {
