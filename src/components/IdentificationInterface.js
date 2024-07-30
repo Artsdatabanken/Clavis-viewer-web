@@ -193,12 +193,13 @@ const IdentificationInterface = ({
 
   const giveAnswer = (id, value) => {
     setState((prevState) => {
-      // Ensure statements exist in the state object
-      const stateWithStatements = {
+      // Ensure statements and taxa exist in the state object
+      const stateWithStatementsAndTaxa = {
         ...prevState,
-        statements: prevState.statements || []
+        statements: prevState.statements || [],
+        taxa: taxa // Use the taxa from the component's state
       };
-      return giveAnswers(stateWithStatements, [[id, value]]);
+      return giveAnswers(stateWithStatementsAndTaxa, [[id, value]]);
     });
   }
 
