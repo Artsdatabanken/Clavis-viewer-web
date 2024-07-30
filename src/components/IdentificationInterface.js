@@ -192,7 +192,14 @@ const IdentificationInterface = ({
   }
 
   const giveAnswer = (id, value) => {
-    setState((prevState) => giveAnswers(prevState, [[id, value]]))
+    setState((prevState) => {
+      // Ensure statements exist in the state object
+      const stateWithStatements = {
+        ...prevState,
+        statements: prevState.statements || []
+      };
+      return giveAnswers(stateWithStatements, [[id, value]]);
+    });
   }
 
   const handleChange = (event, newValue) => {
