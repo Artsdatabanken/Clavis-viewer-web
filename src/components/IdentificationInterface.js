@@ -57,7 +57,7 @@ function TabPanel(props) {
   )
 }
 
-const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
+const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection, language }) => {
   const { t, i18n } = useTranslation()
   const [characters, setCharacters] = useState([])
   const [taxa, setTaxa] = useState([])
@@ -83,14 +83,18 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
 
   useEffect(() => {
     if (clavis && Array.isArray(clavis.language)) {
-      const currentLang = i18n.language
-      if (!clavis.language.includes(currentLang)) {
-        const preferredLangs = ['en', 'nb', 'nn']
-        const newLang = preferredLangs.find(lang => clavis.language.includes(lang)) || clavis.language[0]
-        i18n.changeLanguage(newLang)
+      if (language && clavis.language.includes(language)) {
+        i18n.changeLanguage(language)
+      } else {
+        const currentLang = i18n.language
+        if (!clavis.language.includes(currentLang)) {
+          const preferredLangs = ['en', 'nb', 'nn']
+          const newLang = preferredLangs.find(lang => clavis.language.includes(lang)) || clavis.language[0]
+          i18n.changeLanguage(newLang)
+        }
       }
     }
-  }, [clavis])
+  }, [clavis, language])
 
   useEffect(() => {
     const loadKeyData = async () => {
