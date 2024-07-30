@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Tabs, Tab, AppBar, Typography, Box, Button, Card } from '@mui/material'
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView'
 import { TreeItem } from '@mui/x-tree-view/TreeItem'
+import i18n from 'i18next'
 
 import ForestIcon from '@mui/icons-material/Forest'
 import VpnKeyIcon from '@mui/icons-material/VpnKey'
@@ -57,7 +58,7 @@ function TabPanel(props) {
 }
 
 const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [characters, setCharacters] = useState([])
   const [taxa, setTaxa] = useState([])
   const [value, setValue] = useState(1)
@@ -79,6 +80,17 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
     descriptionUrl: '',
     lastModified: ''
   })
+
+  useEffect(() => {
+    if (clavis && Array.isArray(clavis.language)) {
+      const currentLang = i18n.language
+      if (!clavis.language.includes(currentLang)) {
+        const preferredLangs = ['en', 'nb', 'nn']
+        const newLang = preferredLangs.find(lang => clavis.language.includes(lang)) || clavis.language[0]
+        i18n.changeLanguage(newLang)
+      }
+    }
+  }, [clavis])
 
   useEffect(() => {
     const loadKeyData = async () => {
