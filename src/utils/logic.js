@@ -392,6 +392,11 @@ export const getRelevantTaxaCount = (taxa) => {
 
 // answers a set of alternatives with their values
 export const giveAnswers = (stateObject, answers) => {
+  if (!stateObject.statements) {
+    console.error('stateObject.statements is undefined in giveAnswers');
+    return stateObject;
+  }
+
   answers.forEach((a) => {
     let id, value;
     [id, value] = a;
