@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Tabs, Tab, AppBar, Typography, Box, Button, Card } from '@mui/material'
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView'
@@ -16,7 +16,6 @@ import TaxonTreeItem from './TaxonTreeItem'
 import Character from './Character'
 import Modal from './Modal'
 
-
 import {
   inferAlternatives,
   initElement,
@@ -30,14 +29,15 @@ import {
 let wideScreen = false
 let reallySmall = false
 
-
 const getScreenSizes = () => {
-  wideScreen = document.getElementById('content')
-    ? document.getElementById('content').offsetWidth > 992
-    : window.innerWidth > 992
-  reallySmall = document.getElementById('content')
-    ? document.getElementById('content').offsetWidth < 768
-    : window.innerWidth < 768
+  if (typeof window !== 'undefined') {
+    wideScreen = document.getElementById('content')
+      ? document.getElementById('content').offsetWidth > 992
+      : window.innerWidth > 992
+    reallySmall = document.getElementById('content')
+      ? document.getElementById('content').offsetWidth < 768
+      : window.innerWidth < 768
+  }
 }
 
 function TabPanel(props) {
@@ -56,144 +56,133 @@ function TabPanel(props) {
   )
 }
 
-const IdentificationInterfaceWrapper = (props) => {
-  const { t } = useTranslation();
-  return <IdentificationInterface {...props} t={t} />;
-}
+const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection }) => {
+  const { t } = useTranslation()
+  const [characters, setCharacters] = useState([])
+  const [taxa, setTaxa] = useState([])
+  const [value, setValue] = useState(1)
+  const [modalObject, setModalObject] = useState({})
+  const [state, setState] = useState({})
 
-class IdentificationInterface extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      characters: [],
-      taxa: [],
-      value: 1,
-      modalObject: {}
-    }
-  }
-
-  componentDidMount() {
-    if (!!this.props.keyId) {
-      console.log(
-        this.props.keys.find((k) => k.id === this.props.keyId).filename
-      )
-      this.getKey(
-        this.props.keys.find((k) => k.id === this.props.keyId).filename
-      )
-    } else if (!!this.props.clavis) {
-      this.loadKey(this.props.clavis)
+  useEffect(() => {
+    if (keyId) {
+      console.log(keys.find((k) => k.id === keyId).filename)
+      getKey(keys.find((k) => k.id === keyId).filename)
+    } else if (clavis) {
+      loadKey(clavis)
     } else {
       console.log('No key provided')
     }
-    window.addEventListener('resize', this.resize)
+
+    const handleResize = () => {
+      getScreenSizes()
+      // Force re-render
+      setState({})
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [keyId, clavis, keys])
+
+  const toggleDismissTaxon = (id) => {
+    setState((prevState) => toggleTaxonDismissed(prevState, id))
   }
 
-  resize = () => this.forceUpdate()
-
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.resize)
+  const undoAnswer = (id) => {
+    setState((prevState) => giveAnswers(prevState, [[id, undefined]]))
   }
 
-  // Dismiss a taxon manually, or restore it if it was dismissed. Then see which charactes are relevant
-  toggleDismissTaxon = (id) => {
-    this.setState(toggleTaxonDismissed(this.state, id))
-  }
-
-  // undo a previously given answer for an alternative
-  undoAnswer = (id) => {
-    this.setState(giveAnswers(this.state, [[id, undefined]]))
-  }
-
-  makeTaxaRelevant = (taxa) => {
+  const makeTaxaRelevant = (taxa) => {
     return taxa.map((t) => {
       t.conflicts = []
       t.isRelevant = true
       t.isIrrelevant = false
       if (t.children && t.children.length > 0) {
-        t.children = this.makeTaxaRelevant(t.children)
+        t.children = makeTaxaRelevant(t.children)
       }
       return t
     })
   }
 
-  resetAnswers = () => {
-    let answers = this.state.characters.reduce(
+  const resetAnswers = () => {
+    let answers = characters.reduce(
       (arr, elem) =>
         arr.concat(elem.states.filter((a) => a.isAnswered).map((a) => a.id)),
       []
     )
     answers.forEach((a) => {
-      this.giveAnswer(a, undefined)
+      giveAnswer(a, undefined)
     })
   }
 
-  setModal = (modalObject) => {
-    if (modalObject.taxon) {
-      modalObject.keys = this.props.keys
-      modalObject.key = { id: this.state.id }
-      modalObject.mediaElements = this.state.mediaElements
-    } else if (modalObject.about) {
-      modalObject = {
+  const setModalObject = (newModalObject) => {
+    if (newModalObject.taxon) {
+      newModalObject.keys = keys
+      newModalObject.key = { id: state.id }
+      newModalObject.mediaElements = state.mediaElements
+    } else if (newModalObject.about) {
+      newModalObject = {
         about: {
-          id: this.state.id,
-          classification: this.state.classification,
-          title: this.state.title,
-          creators: this.state.creators,
-          contributors: this.state.contributors,
-          publishers: this.state.publishers,
-          description: this.state.description,
-          descriptionDetails: this.state.descriptionDetails,
-          descriptionUrl: this.state.descriptionUrl,
-          lastModified: this.state.lastModified,
-          language: this.state.language
+          id: state.id,
+          classification: state.classification,
+          title: state.title,
+          creators: state.creators,
+          contributors: state.contributors,
+          publishers: state.publishers,
+          description: state.description,
+          descriptionDetails: state.descriptionDetails,
+          descriptionUrl: state.descriptionUrl,
+          lastModified: state.lastModified,
+          language: state.language
         }
       }
-      modalObject.keys = this.props.keys
+      newModalObject.keys = keys
     }
-    this.setState({ modalObject: modalObject })
+    setModalObject(newModalObject)
   }
 
-  giveAnswer = (id, value) => {
-    this.setState(giveAnswers(this.state, [[id, value]]))
+  const giveAnswer = (id, value) => {
+    setState((prevState) => giveAnswers(prevState, [[id, value]]))
   }
 
-  handleChange = (event, value) => {
-    this.setState({ value })
+  const handleChange = (event, newValue) => {
+    setValue(newValue)
   }
 
-  storeAutoId = (idResult) => {
-    this.setState({
+  const storeAutoId = (idResult) => {
+    setState((prevState) => ({
+      ...prevState,
       predictions: idResult.predictions
         .filter((prediction) => prediction.probability > 0.01)
         .map((prediction) => {
           prediction.isPartOfKey = isPartOfKey(
-            this.state.taxa,
+            prevState.taxa,
             prediction.taxon.name
           )
           return prediction
         })
-    })
+    }))
   }
 
-  filterTaxaByPredictions = (predictions, keepCommonTaxon) => {
-    this.setState(
+  const filterTaxaByPredictions = (predictions, keepCommonTaxon) => {
+    setState((prevState) =>
       filterTaxaByNames(
-        this.state,
+        prevState,
         predictions.map((p) => p.taxon.name),
         keepCommonTaxon
       )
     )
   }
 
-  loadKey = (data) => {
+  const loadKey = (data) => {
     let myData = data
 
-    myData.keys = this.props.keys
+    myData.keys = keys
 
     myData = initElement(myData)
 
-    if (this.props.taxonSelection && this.props.taxonSelection.length) {
-      myData.taxa = filterTaxaByIds(myData.taxa, this.props.taxonSelection)
+    if (taxonSelection && taxonSelection.length) {
+      myData.taxa = filterTaxaByIds(myData.taxa, taxonSelection)
     }
 
     // Set statements with undefined frequencies to frequency=1 (i.e. always true)
@@ -241,73 +230,65 @@ class IdentificationInterface extends Component {
     myData = giveAnswers(myData, [])
     myData.taxaCount = myData.relevantTaxaCount
 
-    // myData.characters = getCharacterRelevances(myData);
-
     if (Array.isArray(myData.language) && myData.language.length === 1) {
       myData.language = myData.language[0]
     }
 
-    this.setState(myData)
+    setState(myData)
   }
 
-  getKey = (filename) => {
+  const getKey = (filename) => {
     fetch(filename)
       .then((response) => response.json())
       .then((data) => {
-        this.loadKey(data)
+        loadKey(data)
       })
   }
 
-  render() {
-    const { value } = this.state
-    // If there is a content element, the player is part of the editor and it's the content element size that counts. If not, it's the screen
+  getScreenSizes()
 
-    getScreenSizes()
+  const answered = characters.filter((character) => character.isAnswered)
 
-    const answered = this.state.characters.filter(
-      (character) => character.isAnswered
-    )
+  const questions = characters.filter(
+    (character) => !character.isAnswered && character.relevant !== false
+  )
 
-    const questions = this.state.characters.filter(
-      (character) => !character.isAnswered && character.relevant !== false
-    )
-
-    const iconItem = (icon, text, number) => {
-      if (number >= 0) {
-        return (
-          <span style={{ justifyContent: 'center', display: 'flex' }}>
-            <span style={{ paddingRight: '6px' }}>{icon}</span>{' '}
-            {!reallySmall && text + ' '}({number})
-          </span>
-        )
-      }
+  const iconItem = (icon, text, number) => {
+    if (number >= 0) {
       return (
         <span style={{ justifyContent: 'center', display: 'flex' }}>
           <span style={{ paddingRight: '6px' }}>{icon}</span>{' '}
-          {!reallySmall && text}
+          {!reallySmall && text + ' '}({number})
         </span>
       )
     }
-
-    const ButtonInTabs = ({ className, onClick, children }) => {
-      return (
-        <Typography
-          variant='overline'
-          className={className}
-          onClick={onClick}
-          children={children}
-          sx={{
-            paddingTop: '8px',
-            opacity: '0.7',
-            fontSize: '0.875rem',
-            fontWeight: '500',
-            lineHeight: '1.75'
-          }}
-        ></Typography>
-      )
-    }
-
     return (
+      <span style={{ justifyContent: 'center', display: 'flex' }}>
+        <span style={{ paddingRight: '6px' }}>{icon}</span>{' '}
+        {!reallySmall && text}
+      </span>
+    )
+  }
+
+  const ButtonInTabs = ({ className, onClick, children }) => {
+    return (
+      <Typography
+        variant='overline'
+        className={className}
+        onClick={onClick}
+        children={children}
+        sx={{
+          paddingTop: '8px',
+          opacity: '0.7',
+          fontSize: '0.875rem',
+          fontWeight: '500',
+          lineHeight: '1.75'
+        }}
+      ></Typography>
+    )
+  }
+
+  return (
       <div style={{ display: 'flex', flexGrow: 1, height: '100%' }}>
         <Modal
           modalObject={this.state.modalObject}
@@ -602,4 +583,4 @@ class IdentificationInterface extends Component {
   }
 }
 
-export default IdentificationInterfaceWrapper
+export default IdentificationInterface
