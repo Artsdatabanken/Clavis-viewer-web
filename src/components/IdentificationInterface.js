@@ -84,7 +84,8 @@ const IdentificationInterface = ({
     description: '',
     descriptionDetails: '',
     descriptionUrl: '',
-    lastModified: ''
+    lastModified: '',
+    characters: []
   })
 
   useEffect(() => {
@@ -295,7 +296,8 @@ const IdentificationInterface = ({
       description: myData.description,
       descriptionDetails: myData.descriptionDetails,
       descriptionUrl: myData.descriptionUrl,
-      lastModified: myData.lastModified
+      lastModified: myData.lastModified,
+      characters: myData.characters
     }))
   }
 
