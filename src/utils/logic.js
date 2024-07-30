@@ -528,6 +528,10 @@ export const toggleTaxonDismissed = (stateObject, taxonId) => {
 
 // deducts the answers for unanswered alternatives, and marks the character as relevant or irrelevant
 export const inferAlternatives = (stateObject) => {
+  if (!stateObject.statements) {
+    console.error('stateObject.statements is undefined');
+    return stateObject;
+  }
 
   let relevantStatements = stateObject.statements.filter((sm) =>
     isRelevantTaxon(sm.taxon, stateObject.taxa)
