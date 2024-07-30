@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-
+import { useTranslation } from 'react-i18next'
 import { Tabs, Tab, AppBar, Typography, Box, Button, Card } from '@mui/material'
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView'
 import { TreeItem } from '@mui/x-tree-view/TreeItem'
@@ -54,6 +54,11 @@ function TabPanel(props) {
       {value === index && <Box p={3}>{children}</Box>}
     </div>
   )
+}
+
+const IdentificationInterfaceWrapper = (props) => {
+  const { t } = useTranslation();
+  return <IdentificationInterface {...props} t={t} />;
 }
 
 class IdentificationInterface extends Component {
@@ -332,7 +337,7 @@ class IdentificationInterface extends Component {
             <Tab
               label={iconItem(
                 <VpnKeyIcon />,
-                'Ubesvart',
+                this.props.t('unanswered', 'Ubesvart'),
                 this.state.relevantTaxaCount > 1 ? questions.length : 0
               )}
             />
@@ -597,4 +602,4 @@ class IdentificationInterface extends Component {
   }
 }
 
-export default IdentificationInterface
+export default IdentificationInterfaceWrapper
