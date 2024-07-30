@@ -57,7 +57,13 @@ function TabPanel(props) {
   )
 }
 
-const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection, language }) => {
+const IdentificationInterface = ({
+  keys,
+  keyId,
+  clavis,
+  taxonSelection,
+  language
+}) => {
   const { t, i18n } = useTranslation()
   const [characters, setCharacters] = useState([])
   const [taxa, setTaxa] = useState([])
@@ -89,7 +95,9 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection, language
         const currentLang = i18n.language
         if (!clavis.language.includes(currentLang)) {
           const preferredLangs = ['en', 'nb', 'nn']
-          const newLang = preferredLangs.find(lang => clavis.language.includes(lang)) || clavis.language[0]
+          const newLang =
+            preferredLangs.find((lang) => clavis.language.includes(lang)) ||
+            clavis.language[0]
           i18n.changeLanguage(newLang)
         }
       }
@@ -367,12 +375,12 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection, language
           }}
         >
           <Tab
-            label={iconItem(<BeenhereIcon />, 'Mine svar', answered.length)}
+            label={iconItem(<BeenhereIcon />, t('My answers'), answered.length)}
           />
           <Tab
             label={iconItem(
               <VpnKeyIcon />,
-              t('unanswered'),
+              t('Unanswered'),
               state.relevantTaxaCount > 1 ? questions.length : 0
             )}
           />
@@ -382,7 +390,11 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection, language
           {!wideScreen && (
             <Tab
               value={3}
-              label={iconItem(<ForestIcon />, 'Taksa', state.relevantTaxaCount)}
+              label={iconItem(
+                <ForestIcon />,
+                t('Taxa'),
+                state.relevantTaxaCount
+              )}
             />
           )}
 
@@ -391,7 +403,7 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection, language
             onClick={() => updateModalObject({ about: true })}
           >
             <span style={{ cursor: 'pointer', color: 'rgba(0, 0, 0, 0.6)' }}>
-              {iconItem(<InfoIcon />, 'OM')}
+              {iconItem(<InfoIcon />, t('About'))}
             </span>
             {/* <InfoIcon style={{ marginLeft: "3em" }} /> */}
           </ButtonInTabs>
@@ -407,7 +419,7 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection, language
             flexGrow: 1
           }}
         >
-          Choose language
+          {t('Choose language')}
         </main>
       )}
 
@@ -435,7 +447,7 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection, language
                   }}
                   onClick={resetAnswers}
                 >
-                  <RestoreIcon /> Tilbakestill alle svar
+                  <RestoreIcon /> {t('Reset all answers')}
                 </Button>
 
                 {answered.map((character) => (
@@ -452,10 +464,10 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection, language
             ) : (
               <span>
                 <Typography variant='h5' component='h5'>
-                  Ingen svar ennå
+                  {t('No answers yet')}
                 </Typography>
                 <Typography variant='subtitle1'>
-                  Svar på spørsmålene i nøkkelen for å identifisere arten.
+                  {t('Answer the questions')}
                 </Typography>
               </span>
             )}
@@ -480,7 +492,7 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection, language
             {state.relevantTaxaCount === 1 && (
               <div>
                 <Typography variant='h5' component='h5'>
-                  Svar funnet!
+                  {t('Result found')}
                 </Typography>
                 <Taxon
                   taxon={state.results[0]}
@@ -506,7 +518,7 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection, language
                 itemId='relevant'
                 label={
                   <Typography variant='h5' component='h5'>
-                    Mulige utfall ({state.relevantTaxaCount})
+                    {t('Possible results')} ({state.relevantTaxaCount})
                   </Typography>
                 }
               >
@@ -528,7 +540,7 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection, language
                 itemId='irrelevant'
                 label={
                   <Typography variant='h5' component='h5'>
-                    Utelukket ({state.taxaCount - state.relevantTaxaCount})
+                    {t("Excluded")} ({state.taxaCount - state.relevantTaxaCount})
                   </Typography>
                 }
               >
@@ -575,7 +587,7 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection, language
                 itemId='relevant'
                 label={
                   <Typography variant='h5' component='h5'>
-                    Mulige utfall ({state.relevantTaxaCount})
+                    {t('Possible results')} ({state.relevantTaxaCount})
                   </Typography>
                 }
               >
@@ -597,7 +609,7 @@ const IdentificationInterface = ({ keys, keyId, clavis, taxonSelection, language
                 itemId='irrelevant'
                 label={
                   <Typography variant='h5' component='h5'>
-                    Utelukket ({state.taxaCount - state.relevantTaxaCount})
+                    {t('Excluded')} ({state.taxaCount - state.relevantTaxaCount})
                   </Typography>
                 }
               >
