@@ -1,4 +1,5 @@
 import React from 'react'
+import i18n from '../i18n'
 
 import {
   Button,
@@ -22,7 +23,8 @@ import { useTheme } from '@mui/material/styles'
 import { capitalize, getImgSrc } from '../utils/helpers'
 
 function Modal(props) {
-  let { modalObject, setModal, language } = props
+  let { modalObject, setModal } = props
+  const t = i18n.t
 
   let modalContent
 
@@ -39,15 +41,11 @@ function Modal(props) {
       modalContent = (
         <div style={{ margin: '25px' }}>
           <Typography variant='h4' sx={{ fontSize: '2em' }} component='h1'>
-            Resultatet kan ikke bestemmes videre
+            {t('The result cannot be determined any further')}
           </Typography>
 
-          <Typography
-            variant='body2'
-            sx={{ fontSize: '1.25em' }}
-            component='p'
-          >
-            Følgende resultater gjenstår:
+          <Typography variant='body2' sx={{ fontSize: '1.25em' }} component='p'>
+            {t('These results remain')}
           </Typography>
 
           {modalObject.results.map((c) => {
@@ -65,12 +63,12 @@ function Modal(props) {
                   component='h2'
                 >
                   {c.vernacularName &&
-                    c.vernacularName[language] &&
-                    capitalize(c.vernacularName[language])}
+                    c.vernacularName[i18n.language] &&
+                    capitalize(c.vernacularName[i18n.language])}
                   {!c.vernacularName &&
                     c.label &&
-                    c.label[language] &&
-                    capitalize(c.label[language])}
+                    c.label[i18n.language] &&
+                    capitalize(c.label[i18n.language])}
                   {!c.vernacularName && !c.label && c.scientificName && (
                     <i>{c.scientificName}</i>
                   )}
@@ -102,7 +100,7 @@ function Modal(props) {
                       }}
                       onClick={setModal.bind(this, { url: c.descriptionUrl })}
                     >
-                      Les mer
+                      {t('Read more')}
                     </Button>
                   </div>
                 )}
@@ -149,18 +147,24 @@ function Modal(props) {
     modalContent = (
       <div style={{ margin: '25px' }}>
         <Typography variant='h3' component='h1'>
-          {key.title[language]}
+          {key.title[i18n.language]}
         </Typography>
         <Typography variant='overline' component='span'>
-          Bestemmelsesnøkkel
+          {t('Identification key')}
         </Typography>
         <Typography variant='body1' component='p'>
-          <b>{key.description ? key.description[language] : ''}</b>
+          <b>
+            <ReactMarkdown
+              children={key.description ? key.description[i18n.language] : ''}
+            />
+          </b>
         </Typography>
         <Typography variant='body2' component='div'>
           <ReactMarkdown
             children={
-              key.descriptionDetails ? key.descriptionDetails[language] : ''
+              key.descriptionDetails
+                ? key.descriptionDetails[i18n.language]
+                : ''
             }
           />
         </Typography>
@@ -168,16 +172,14 @@ function Modal(props) {
         {!!taxonSelection.length && (
           <Typography variant='body1' component='p'>
             <b>
-              Du ser på en delnøkkel, som er begrenset til{' '}
-              {taxonSelection.length === 1
-                ? 'ett takson'
-                : taxonSelection.length + ' taksa'}
-              .
+              {t('Using partial key', {
+                count: taxonSelection.length
+              })}
             </b>
           </Typography>
         )}
 
-        {key.descriptionUrl && (
+        {false && key.descriptionUrl && (
           <div style={{ paddingTop: '1em' }}>
             <Button
               sx={{
@@ -186,10 +188,11 @@ function Modal(props) {
               }}
               onClick={setModal.bind(this, { url: key.descriptionUrl })}
             >
-              Les mer om nøkkelen
+              {t('Read more about the key')}
             </Button>
           </div>
         )}
+
         <Divider sx={{ margin: '2em 0 1em 0' }} />
         <ItemMetadata item={key} setModal={setModal} />
 
@@ -217,7 +220,7 @@ function Modal(props) {
             </Typography>
 
             {parentKeys.map((p) => (
-              <KeyInfo key={p.id} keyItem={p} language={language} />
+              <KeyInfo key={p.id} keyItem={p} />
             ))}
           </div>
         )}
@@ -250,21 +253,19 @@ function Modal(props) {
                   marginLeft: 'auto',
                   marginRight: 'auto'
                 }}
-                alt={`Bilde: ${content.title[language]}`}
+                alt={`Bilde: ${content.title[i18n.language]}`}
               />
             </div>
           )}
 
           <Typography variant='h2' sx={{ fontSize: '1.7em' }} component='h2'>
-            {content.title[language]}
+            {content.title[i18n.language]}
           </Typography>
 
-          <Typography
-            variant='body1'
-            component='p'
-            sx={{ fontSize: '1.4em' }}
-          >
-            <b>{content.description ? content.description[language] : ''}</b>
+          <Typography variant='body1' component='p' sx={{ fontSize: '1.4em' }}>
+            <b>
+              {content.description ? content.description[i18n.language] : ''}
+            </b>
           </Typography>
 
           <Typography
@@ -283,7 +284,7 @@ function Modal(props) {
                 }}
                 onClick={setModal.bind(this, { url: content.descriptionUrl })}
               >
-                Les mer
+                {t('Read more')}
               </Button>
             </div>
           )}
@@ -299,7 +300,7 @@ function Modal(props) {
                   sx={{ fontSize: '1.3em' }}
                   component='h2'
                 >
-                  Bilde:
+                  {t('Image')}
                 </Typography>
 
                 <ItemMetadata item={content.media} setModal={setModal} />
@@ -353,15 +354,16 @@ function Modal(props) {
                 marginLeft: 'auto',
                 marginRight: 'auto'
               }}
-              alt={`Bilde: ${taxon.scientificName}`}
+              alt={t('Image') + ` ${taxon.scientificName}`}
             />
           </div>
         )}
         <Typography variant='h2' sx={{ fontSize: '2.5em' }} component='h2'>
-          {!!taxon.vernacularName && capitalize(taxon.vernacularName[language])}
+          {!!taxon.vernacularName &&
+            capitalize(taxon.vernacularName[i18n.language])}
           {!taxon.vernacularName &&
             !!taxon.label &&
-            capitalize(taxon.label[language])}
+            capitalize(taxon.label[i18n.language])}
         </Typography>
 
         <Typography
@@ -400,7 +402,7 @@ function Modal(props) {
               }}
               onClick={setModal.bind(this, { url: taxon.descriptionUrl })}
             >
-              Les mer
+              {t('Read more')}
             </Button>
           </div>
         )}
@@ -416,7 +418,7 @@ function Modal(props) {
                 sx={{ fontSize: '1.3em' }}
                 component='h2'
               >
-                Bilde:
+                {t('Image')}
               </Typography>
 
               <ItemMetadata item={taxon.media} setModal={setModal} />
@@ -429,13 +431,13 @@ function Modal(props) {
             <Typography variant='overline' component='p'>
               Følgende {followUpKeys.length === 1 ? 'nøkkel' : 'nøkler'} kan
               brukes til å artsbestemme{' '}
-              {capitalize(taxon.vernacularName[language]) ||
+              {capitalize(taxon.vernacularName[i18n.language]) ||
                 taxon.scientificName}{' '}
               nærmere:
             </Typography>
 
             {followUpKeys.map((p) => (
-              <KeyInfo key={p.id} keyItem={p} language={language} />
+              <KeyInfo key={p.id} keyItem={p} />
             ))}
           </div>
         )}

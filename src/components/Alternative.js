@@ -1,4 +1,5 @@
 import React from 'react'
+import i18n from '../i18n'
 
 import { Button, Box, ButtonGroup, Avatar } from '@mui/material'
 
@@ -53,7 +54,7 @@ function AlternativeContent(props) {
           flexWrap: 'wrap'
         }}
       >
-        <div>{title.nb || title.nn || title.en} </div>
+        <div>{title[i18n.language]} </div>
       </div>
     </div>
   )

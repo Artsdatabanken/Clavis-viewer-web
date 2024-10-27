@@ -1,4 +1,5 @@
 import React from "react";
+import i18n from "../i18n";
 
 import { Card, CardHeader, IconButton, Avatar, Typography, Chip } from '@mui/material';
 
@@ -11,7 +12,6 @@ import { capitalize, getImgSrc} from "../utils/helpers";
 function Taxon(props) {
   const { vernacularName, scientificName, id, label} = props.taxon;
   let media = props.taxon.media;
-  let language = props.language
 
   let children = [];
   if (props.taxon.children) {
@@ -55,20 +55,20 @@ function Taxon(props) {
   const nameCapitalizedHeader = (
     <Typography
       variant="h2"
-      style={{ fontSize: "1.12em", lineHeight: ".5em" }}
+      style={{ fontSize: "1.12em", lineHeight: "1em" }}
       gutterBottom
     >
       {
-        !!vernacularName && !!vernacularName[language] ? 
-          capitalize(vernacularName[language])
+        !!vernacularName && !!vernacularName[i18n.language] ? 
+          capitalize(vernacularName[i18n.language])
         : 
         (
           !!scientificName ?
-            <i>{scientificName}</i>
+            <i style={{fontStyle: "italic"}}>{scientificName}</i>
           :
           (
             !!label ? 
-            label[language]
+            label[i18n.language]
             :
               ""
             )
@@ -84,8 +84,8 @@ function Taxon(props) {
   const scientificNameHeader = (
     <Typography variant="body2" gutterBottom style={{ fontSize: "0.8em" }}>
       {
-        ((!!vernacularName && !!vernacularName[language]) || !!label) &&
-        <i>{scientificName}</i>
+        ((!!vernacularName && !!vernacularName[i18n.language]) || !!label) &&
+        <i style={{fontStyle: "italic"}}>{scientificName}</i>
       }
     </Typography>
   );

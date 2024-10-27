@@ -1,4 +1,6 @@
 import React from "react";
+import i18n from "../i18n";
+
 import { Card, CardHeader, CardContent, Avatar, Divider } from '@mui/material';
 import HelpIcon from "@mui/icons-material/Help";
 
@@ -40,7 +42,8 @@ function Character(props) {
                 <HelpIcon style={{ marginRight: ".5em" }} />
               )}
 
-            {props.character.title.nb || props.character.title.nn || props.character.title.en}
+            
+            {props.character.title[i18n.language]}
           </div>
         }
         onClick={

@@ -99,26 +99,7 @@ const removeInferrences = (stateObject) => {
 };
 
 const setTaxaConflicts = (taxa, state, relevantStatements) => {
-  if (!Array.isArray(taxa)) {
-    console.error('taxa is not an array in setTaxaConflicts');
-    return [];
-  }
-
-  if (!state) {
-    console.error('state is undefined in setTaxaConflicts');
-    return taxa;
-  }
-
-  if (!Array.isArray(relevantStatements)) {
-    console.error('relevantStatements is not an array in setTaxaConflicts');
-    return taxa;
-  }
-
   return taxa.map((taxon) => {
-    if (!taxon.conflicts) {
-      taxon.conflicts = [];
-    }
-
     if (
       state.answerIs !== undefined &&
       !taxon.conflicts.includes(state.id) &&
@@ -135,6 +116,7 @@ const setTaxaConflicts = (taxa, state, relevantStatements) => {
           return conflict !== state.id
         }
       );
+
     }
 
     if (taxon.children && taxon.children.length) {
@@ -150,15 +132,10 @@ const setTaxaConflicts = (taxa, state, relevantStatements) => {
 };
 
 const setFact = (stateObject, stateId, value) => {
-  if (!stateObject.characters) {
-    console.error('stateObject.characters is undefined');
-    return stateObject;
-  }
-
   // give the alternative the new value, remembering the old one
   stateObject.characters = stateObject.characters.map((character) => {
     let isTargetCharacter = false;
-    character.states = character.states.map((state) => {
+    character.states.map((state) => {
       if (state.id === stateId) {
         state.answerIs = value;
         isTargetCharacter = true;
@@ -182,6 +159,11 @@ const setFact = (stateObject, stateId, value) => {
     return character;
   });
 
+
+
+
+
+
   let relevantAlternative;
 
   for (let c of stateObject.characters) {
@@ -191,40 +173,27 @@ const setFact = (stateObject, stateId, value) => {
     }
   }
 
-  if (!stateObject.statements) {
-    console.error('stateObject.statements is undefined');
-    return stateObject;
-  }
-
   let relevantStatements = stateObject.statements.filter(
     (s) => s.value === stateId
   );
 
   // add or remove conflicting *alternatives*
-  if (stateObject.taxa) {
-    stateObject.taxa = setTaxaConflicts(
-      stateObject.taxa,
-      relevantAlternative,
-      relevantStatements
-    );
+  stateObject.taxa = setTaxaConflicts(
+    stateObject.taxa,
+    relevantAlternative,
+    relevantStatements
+  );
 
-    stateObject.taxa = setTaxonRelevances(stateObject.taxa);
-  } else {
-    console.error('stateObject.taxa is undefined');
-  }
+  stateObject.taxa = setTaxonRelevances(stateObject.taxa);
 
   return stateObject;
 };
 
 const answer = (stateObject, stateId, value) => {
-  if (!stateObject.characters) {
-    console.error('stateObject.characters is undefined');
-    return stateObject;
-  }
 
   // mark it as (un)answered
-  stateObject.characters = stateObject.characters.map((character) => {
-    character.states = character.states.map((state) => {
+  stateObject.characters.map((character) => {
+    character.states.map((state) => {
       if (state.id === stateId) {
         state.isAnswered = value !== undefined;
       }
@@ -233,13 +202,20 @@ const answer = (stateObject, stateId, value) => {
     return character;
   });
 
+
   // set the value of the alternative, the answered state of the character, and add/remove conflicts
   stateObject = setFact(stateObject, stateId, value);
+
+
 
   // if removing answer, for every earlier inferrence, undo with setFact
   if (value === undefined) {
     stateObject = removeInferrences(stateObject);
   }
+
+
+  // moving to giveAnswers
+  // stateObject = inferAlternatives(stateObject);
 
   return stateObject;
 };
@@ -375,10 +351,6 @@ const dismissAllExceptCommonTaxon = (taxa, taxaToKeep) => {
 };
 
 const getResultTaxa = (taxon) => {
-  if (!taxon) {
-    return null;
-  }
-
   if (Array.isArray(taxon)) {
     return taxon
       .map((t) => getResultTaxa(t))
@@ -418,33 +390,11 @@ export const getRelevantTaxaCount = (taxa) => {
 
 // answers a set of alternatives with their values
 export const giveAnswers = (stateObject, answers) => {
-  if (!stateObject) {
-    console.error('stateObject is undefined in giveAnswers');
-    return {};
-  }
-
-  // Ensure all required properties are initialized
-  stateObject = {
-    ...stateObject,
-    statements: stateObject.statements || [],
-    taxa: stateObject.taxa || [],
-    characters: stateObject.characters || [],
-    keys: stateObject.keys || [],
-    id: stateObject.id || ''
-  };
-
-  if (!Array.isArray(answers)) {
-    console.error('answers is not an array in giveAnswers');
-    return stateObject;
-  }
-
   answers.forEach((a) => {
-    if (Array.isArray(a) && a.length === 2) {
-      let [id, value] = a;
-      stateObject = answer(stateObject, id, value);
-    } else {
-      console.error('Invalid answer format in giveAnswers');
-    }
+    let id, value;
+    [id, value] = a;
+
+    stateObject = answer(stateObject, id, value);
   });
 
   stateObject = inferAlternatives(stateObject);
@@ -460,16 +410,10 @@ export const giveAnswers = (stateObject, answers) => {
     )
   ) {
     stateObject.results = getResultTaxa(stateObject.taxa);
-    stateObject.modalObject = { 
-      results: stateObject.results,
-      keys: stateObject.keys,
-      key: stateObject.id
-    };
-  } else {
-    stateObject.results = [];
-    stateObject.modalObject = { results: [] };
+    stateObject.modalObject = { results: stateObject.results };
+    stateObject.modalObject.keys = stateObject.keys;
+    stateObject.modalObject.key = stateObject.id;
   }
-
   return stateObject;
 };
 
@@ -577,15 +521,6 @@ export const toggleTaxonDismissed = (stateObject, taxonId) => {
 
 // deducts the answers for unanswered alternatives, and marks the character as relevant or irrelevant
 export const inferAlternatives = (stateObject) => {
-  if (!stateObject.statements) {
-    console.error('stateObject.statements is undefined');
-    stateObject.statements = [];
-  }
-
-  if (!stateObject.taxa) {
-    console.error('stateObject.taxa is undefined');
-    stateObject.taxa = [];
-  }
 
   let relevantStatements = stateObject.statements.filter((sm) =>
     isRelevantTaxon(sm.taxon, stateObject.taxa)

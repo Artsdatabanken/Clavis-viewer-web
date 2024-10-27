@@ -1,40 +1,48 @@
 import React from 'react'
+import i18n from '../i18n'
 
 import { Button, Card, CardContent, CardMedia, Typography } from '@mui/material'
 
 function KeyInfo(props) {
   let key = props.keyItem
-  let language = props.language
+  const t = i18n.t
 
   function KeyContext() {
     if (props.subject) {
       return (
         <Typography variant='overline' display='block'>
-          Bestemmelsesnøkkel for {props.subject.ScientificName}
+          {t('Identification key for')}{' '}
+          {props.subject.ScientificName}
         </Typography>
       )
     } else if (props.lowerTaxon) {
       return (
         <Typography variant='overline' display='block'>
-          Bestemmelsesnøkkel for{' '}
-          {key.classification[key.classification.length - 1].ScientificName},
-          som omfatter {props.lowerTaxon.ScientificName}
+          {t('Key for including', {
+            taxon:
+              key.classification[key.classification.length - 1].ScientificName,
+            includes: props.lowerTaxon.ScientificName
+          })}
         </Typography>
       )
     } else if (props.higherTaxon) {
       return (
         <Typography variant='overline' display='block'>
-          Bestemmelsesnøkkel for{' '}
-          {key.classification[key.classification.length - 1].ScientificName},
-          som faller under {props.higherTaxon.ScientificName}
+          {t('Key for included by', {
+            taxon:
+              key.classification[key.classification.length - 1].ScientificName,
+            includedBy: props.higherTaxon.ScientificName
+          })}
         </Typography>
       )
     } else if (props.result) {
       return (
         <Typography variant='overline' display='block'>
-          Bestemmelsesnøkkel for{' '}
-          {key.classification[key.classification.length - 1].ScientificName}, og
-          har {props.result.ScientificName} som mulig utfall
+          {t('Key for possible result', {
+            taxon:
+              key.classification[key.classification.length - 1].ScientificName,
+            possibleResult: props.result.ScientificName
+          })}
         </Typography>
       )
     }
@@ -49,10 +57,10 @@ function KeyInfo(props) {
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <div style={{ flex: '1 1 auto' }}>
               <Typography gutterBottom variant='h5' component='h2'>
-                {key.title[language]}
+                {key.title[i18n.language]}
               </Typography>
               <Typography variant='body2' component='p'>
-                {!!key.description && key.description[language]}
+                {!!key.description && key.description[i18n.language]}
               </Typography>
 
               {props.lowerTaxon && (
@@ -65,10 +73,10 @@ function KeyInfo(props) {
                     size='small'
                     href={'?key=' + key.id}
                   >
-                    Bruk hele nøkkelen
+                    {t('Use entire key')}
                   </Button>{' '}
                   <Button
-                     sx={{
+                    sx={{
                       'background-color': 'rgb(245, 124, 0) !important',
                       color: 'white !important'
                     }}
@@ -80,7 +88,9 @@ function KeyInfo(props) {
                       props.lowerTaxon.ScientificNameId
                     }
                   >
-                    Bruk kun for {props.lowerTaxon.ScientificName}
+                    {t('Use only for', {
+                      taxon: props.lowerTaxon.ScientificName
+                    })}
                   </Button>
                 </span>
               )}
@@ -89,22 +99,22 @@ function KeyInfo(props) {
             {key.mediaElement && (
               <CardMedia
                 component='img'
-                alt={key.title[language]}
+                alt={key.title[i18n.language]}
                 height='140'
                 image={key.mediaElement.find((m) => m.height >= 150).url}
-                title={key.title[language]}
+                title={key.title[i18n.language]}
                 sx={{ width: 150, height: 150, flex: '0 0 auto' }}
               />
             )}
           </div>
           <Typography color='textSecondary' variant='caption' display='block'>
-            Bestemmelsesnøkkel for{' '}
+            {t('Key for')}{' '}
             {key.classification[key.classification.length - 1].ScientificName}{' '}
-            av {key.creators[0]}
+            {t('by')} {key.creators[0]}
             {key.creators.slice(1).map((c, i) => (
               <span key={i}>, {c}</span>
             ))}
-            . Utgitt av {key.publishers[0]}
+            . {t('Published by')} {key.publishers[0]}
             {key.publishers.slice(1).map((pub, i) => (
               <span key={i}>, {pub}</span>
             ))}
