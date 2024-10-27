@@ -384,15 +384,15 @@ class IdentificationInterface extends Component {
           <main
             style={{
               width: '100%',
-              overflow: 'scroll',
-              marginTop: 45,
+              overflowY: 'auto',
+              marginTop: 50,
               flexGrow: 1
             }}
           >
             <TabPanel
               value={value}
               index={0}
-              sx={{ height: '100%', overflow: 'scroll' }}
+              sx={{ height: '100%', overflowY: 'auto' }}
             >
               {answered.length ? (
                 <div>
@@ -432,7 +432,7 @@ class IdentificationInterface extends Component {
             <TabPanel
               value={value}
               index={1}
-              sx={{ height: '100%', overflow: 'scroll' }}
+              sx={{ height: '100%', overflowY: 'auto' }}
             >
               {this.state.relevantTaxaCount > 1 &&
                 questions.map((character) => (
@@ -471,7 +471,7 @@ class IdentificationInterface extends Component {
             <TabPanel
               value={value}
               index={3}
-              sx={{ height: '100%', overflow: 'scroll' }}
+              sx={{ height: '100%', overflowY: 'auto' }}
             >
               <SimpleTreeView
                 disableSelection={true}
@@ -531,14 +531,14 @@ class IdentificationInterface extends Component {
               marginTop: 45,
               minWidth: 400,
               zIndex: 0,
-              overflow: 'scroll'
+              overflowY: 'auto'
             }}
           >
             <Box
               style={{
                 width: 350,
                 padding: 20,
-                overflow: 'auto'
+                overflowY: 'auto'
               }}
             >
               <SimpleTreeView
