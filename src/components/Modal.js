@@ -111,13 +111,27 @@ function Modal(props) {
       )
     }
   } else if (modalObject.url) {
+    let url = ''
+
+    // If the url is a string, use it as is
+    if (typeof modalObject.url === 'string') {
+      url = modalObject.url
+    } else if (
+      modalObject.url[i18n.language] &&
+      modalObject.url[i18n.language].serviceId &&
+      modalObject.url[i18n.language].serviceId === 'service:nbic_page'
+    ) {
+      url = `https://artsdatabanken.no/Widgets/${
+        modalObject.url[i18n.language].externalId
+      }`
+    }
+
     modalContent = (
       <object
         aria-label='External page'
         type='text/html'
-        data={modalObject.url}
-        width='100%'
-        height='600'
+        data={url}
+        style={{"width": "600px", "height": "1000px", "max-width": "100%", "max-height": "100%"}}
       ></object>
     )
   } else if (modalObject.about) {
