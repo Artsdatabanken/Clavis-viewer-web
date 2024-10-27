@@ -1,6 +1,7 @@
 import React from "react";
 
-import {TreeItem} from '@mui/x-tree-view';
+import { TreeItem } from '@mui/x-tree-view/TreeItem';
+// import {TreeItem} from '@mui/x-tree-view';
 import Taxon from "./Taxon";
 
 function TaxonTreeItem(props) {
@@ -38,7 +39,6 @@ function TaxonTreeItem(props) {
           setModal={props.setModal}
           filter={props.filter}
           media={props.media}
-          language={props.language}
         />
       }
     >
@@ -51,7 +51,6 @@ function TaxonTreeItem(props) {
               media={props.media}
               key={child.id}
               filter={props.filter}
-              language={props.language}
             />
           ))
         : ""}

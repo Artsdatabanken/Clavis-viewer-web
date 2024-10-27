@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import { withTranslation } from 'react-i18next'
+import i18n from '../i18n'
 
 import { Tabs, Tab, AppBar, Typography, Box, Button, Card } from '@mui/material'
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView'
@@ -28,6 +30,8 @@ import {
 
 let wideScreen = false
 let reallySmall = false
+
+const t = i18n.t
 
 const getScreenSizes = () => {
   wideScreen = document.getElementById('content')
@@ -67,9 +71,6 @@ class IdentificationInterface extends Component {
 
   componentDidMount() {
     if (!!this.props.keyId) {
-      console.log(
-        this.props.keys.find((k) => k.id === this.props.keyId).filename
-      )
       this.getKey(
         this.props.keys.find((k) => k.id === this.props.keyId).filename
       )
@@ -78,6 +79,7 @@ class IdentificationInterface extends Component {
     } else {
       console.log('No key provided')
     }
+
     window.addEventListener('resize', this.resize)
   }
 
@@ -131,14 +133,15 @@ class IdentificationInterface extends Component {
           id: this.state.id,
           classification: this.state.classification,
           title: this.state.title,
-          creators: this.state.creators,
+          creators: (this.state.persons ? this.state.persons.filter(p => p.id === this.state.creator) : null),
           contributors: this.state.contributors,
           publishers: this.state.publishers,
           description: this.state.description,
           descriptionDetails: this.state.descriptionDetails,
           descriptionUrl: this.state.descriptionUrl,
           lastModified: this.state.lastModified,
-          language: this.state.language
+          license: this.state.license,
+          language: this.state.language,
         }
       }
       modalObject.keys = this.props.keys
@@ -185,8 +188,15 @@ class IdentificationInterface extends Component {
 
     myData = initElement(myData)
 
-    if (this.props.taxonSelection && this.props.taxonSelection.length) {
-      myData.taxa = filterTaxaByIds(myData.taxa, this.props.taxonSelection)
+    // if (this.props.taxonSelection && this.props.taxonSelection.length) {
+    //   myData.taxa = filterTaxaByIds(myData.taxa, this.props.taxonSelection)
+    // }
+
+    if (
+      this.props.scientificNameFilter &&
+      this.props.scientificNameFilter.length
+    ) {
+      myData = filterTaxaByNames(myData, this.props.scientificNameFilter, true)
     }
 
     // Set statements with undefined frequencies to frequency=1 (i.e. always true)
@@ -236,8 +246,18 @@ class IdentificationInterface extends Component {
 
     // myData.characters = getCharacterRelevances(myData);
 
-    if (Array.isArray(myData.language) && myData.language.length === 1) {
-      myData.language = myData.language[0]
+    // Set language to the one specified, if the key supports it.
+    if (this.props.language && myData.language.includes(this.props.language)) {
+      i18n.changeLanguage(this.props.language)
+    } else {
+      const currentLang = i18n.language
+      if (!myData.language.includes(currentLang)) {
+        const preferredLangs = ['en', 'nb', 'nn']
+        const newLang =
+          preferredLangs.find((lang) => myData.language.includes(lang)) ||
+          myData.language[0]
+        i18n.changeLanguage(newLang)
+      }
     }
 
     this.setState(myData)
@@ -302,15 +322,11 @@ class IdentificationInterface extends Component {
 
     return (
       <div style={{ display: 'flex', flexGrow: 1, height: '100%' }}>
-        <Modal
-          modalObject={this.state.modalObject}
-          setModal={this.setModal}
-          language={this.state.language}
-        />
+        <Modal modalObject={this.state.modalObject} setModal={this.setModal} />
 
         <AppBar
           position='absolute'
-          sx={{ backgroundColor: '#f57c00', zIndex: 1 }}
+          sx={{ backgroundColor: this.props.color || '#f57c00', zIndex: 1 }}
         >
           <Tabs
             value={value}
@@ -325,12 +341,16 @@ class IdentificationInterface extends Component {
             }}
           >
             <Tab
-              label={iconItem(<BeenhereIcon />, 'Mine svar', answered.length)}
+              label={iconItem(
+                <BeenhereIcon />,
+                t('My answers'),
+                answered.length
+              )}
             />
             <Tab
               label={iconItem(
                 <VpnKeyIcon />,
-                'Ubesvart',
+                t('Unanswered'),
                 this.state.relevantTaxaCount > 1 ? questions.length : 0
               )}
             />
@@ -342,7 +362,7 @@ class IdentificationInterface extends Component {
                 value={3}
                 label={iconItem(
                   <ForestIcon />,
-                  'Taksa',
+                  t('Taxa'),
                   this.state.relevantTaxaCount
                 )}
               />
@@ -353,27 +373,14 @@ class IdentificationInterface extends Component {
               onClick={this.setModal.bind(this, { about: true })}
             >
               <span style={{ cursor: 'pointer', color: 'rgba(0, 0, 0, 0.6)' }}>
-                {iconItem(<InfoIcon />, 'OM')}
+                {iconItem(<InfoIcon />, t('About'))}
               </span>
               {/* <InfoIcon style={{ marginLeft: "3em" }} /> */}
             </ButtonInTabs>
           </Tabs>
         </AppBar>
 
-        {Array.isArray(this.state.language) && (
-          <main
-            style={{
-              width: '100%',
-              overflow: 'scroll',
-              marginTop: 45,
-              flexGrow: 1
-            }}
-          >
-            Choose language
-          </main>
-        )}
-
-        {!Array.isArray(this.state.language) && this.state.taxa.length && (
+        {this.state.taxa.length && (
           <main
             style={{
               width: '100%',
@@ -397,7 +404,7 @@ class IdentificationInterface extends Component {
                     }}
                     onClick={this.resetAnswers}
                   >
-                    <RestoreIcon /> Tilbakestill alle svar
+                    <RestoreIcon /> {t('Reset all answers')}
                   </Button>
 
                   {answered.map((character) => (
@@ -414,10 +421,10 @@ class IdentificationInterface extends Component {
               ) : (
                 <span>
                   <Typography variant='h5' component='h5'>
-                    Ingen svar ennå
+                    {t('No answers yet')}
                   </Typography>
                   <Typography variant='subtitle1'>
-                    Svar på spørsmålene i nøkkelen for å identifisere arten.
+                    {t('Answer the questions')}
                   </Typography>
                 </span>
               )}
@@ -442,7 +449,7 @@ class IdentificationInterface extends Component {
               {this.state.relevantTaxaCount === 1 && (
                 <div>
                   <Typography variant='h5' component='h5'>
-                    Svar funnet!
+                    {t('Result found')}
                   </Typography>
                   <Taxon
                     taxon={this.state.results[0]}
@@ -450,7 +457,6 @@ class IdentificationInterface extends Component {
                     setModal={this.setModal}
                     toggleDismissTaxon={this.toggleDismissTaxon}
                     standalone={true}
-                    language={this.state.language}
                   />
                 </div>
               )}
@@ -469,13 +475,13 @@ class IdentificationInterface extends Component {
             >
               <SimpleTreeView
                 disableSelection={true}
-                expandedItems={['relevant']}
+                defaultExpandedItems={['relevant']}
               >
                 <TreeItem
                   itemId='relevant'
                   label={
                     <Typography variant='h5' component='h5'>
-                      Mulige utfall ({this.state.relevantTaxaCount})
+                      {t('Possible results')} ({this.state.relevantTaxaCount})
                     </Typography>
                   }
                 >
@@ -489,7 +495,6 @@ class IdentificationInterface extends Component {
                         media={this.state.mediaElements}
                         key={taxon.id}
                         filter='relevant'
-                        language={this.state.language}
                       />
                     ))}
                 </TreeItem>
@@ -497,7 +502,7 @@ class IdentificationInterface extends Component {
                   itemId='irrelevant'
                   label={
                     <Typography variant='h5' component='h5'>
-                      Utelukket (
+                      {t('Excluded')} (
                       {this.state.taxaCount - this.state.relevantTaxaCount})
                     </Typography>
                   }
@@ -512,7 +517,6 @@ class IdentificationInterface extends Component {
                         taxon={taxon}
                         key={taxon.id}
                         filter='irrelevant'
-                        language={this.state.language}
                       />
                     ))}
                 </TreeItem>
@@ -539,13 +543,13 @@ class IdentificationInterface extends Component {
             >
               <SimpleTreeView
                 disableSelection={true}
-                expandedItems={['relevant']}
+                defaultExpandedItems={['relevant']}
               >
                 <TreeItem
                   itemId='relevant'
                   label={
                     <Typography variant='h5' component='h5'>
-                      Mulige utfall ({this.state.relevantTaxaCount})
+                      {t('Possible results')} ({this.state.relevantTaxaCount})
                     </Typography>
                   }
                 >
@@ -559,7 +563,6 @@ class IdentificationInterface extends Component {
                         media={this.state.mediaElements}
                         key={taxon.id}
                         filter='relevant'
-                        language={this.state.language}
                       />
                     ))}
                 </TreeItem>
@@ -567,7 +570,7 @@ class IdentificationInterface extends Component {
                   itemId='irrelevant'
                   label={
                     <Typography variant='h5' component='h5'>
-                      Utelukket (
+                      {t('Excluded')} (
                       {this.state.taxaCount - this.state.relevantTaxaCount})
                     </Typography>
                   }
@@ -582,7 +585,6 @@ class IdentificationInterface extends Component {
                         media={this.state.mediaElements}
                         key={taxon.id}
                         filter='irrelevant'
-                        language={this.state.language}
                       />
                     ))}
                 </TreeItem>
@@ -595,4 +597,4 @@ class IdentificationInterface extends Component {
   }
 }
 
-export default IdentificationInterface
+export default withTranslation()(IdentificationInterface)

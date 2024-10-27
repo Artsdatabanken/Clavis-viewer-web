@@ -1,62 +1,64 @@
-import React from "react";
+import React from 'react'
+import i18n from '../i18n'
 
 const ItemMetadata = (props) => {
-  const { item, setModal } = props;
+  const { item, setModal } = props
+  const t = i18n.t
 
   const getLicense = (url, width = 95) => {
-    if (url.includes("creativecommons.org/publicdomain/zero/")) {
+    if (url.includes('creativecommons.org/publicdomain/zero/')) {
       url = (
         <img
-          style={{ width, cursor: "pointer" }}
-          alt="Licensed CC0"
-          src="https://mirrors.creativecommons.org/presskit/buttons/88x31/png/cc-zero.png"
+          style={{ width, cursor: 'pointer' }}
+          alt='Licensed CC0'
+          src='https://mirrors.creativecommons.org/presskit/buttons/88x31/png/cc-zero.png'
         />
-      );
-    } else if (url.includes("creativecommons.org/licenses/by-sa/")) {
+      )
+    } else if (url.includes('creativecommons.org/licenses/by-sa/')) {
       url = (
         <img
-          style={{ width, cursor: "pointer" }}
-          alt="CC BY-SA"
-          src="https://mirrors.creativecommons.org/presskit/buttons/88x31/png/by-sa.png"
+          style={{ width, cursor: 'pointer' }}
+          alt='CC BY-SA'
+          src='https://mirrors.creativecommons.org/presskit/buttons/88x31/png/by-sa.png'
         />
-      );
-    } else if (url.includes("creativecommons.org/licenses/by/")) {
+      )
+    } else if (url.includes('creativecommons.org/licenses/by/')) {
       url = (
         <img
-          style={{ width, cursor: "pointer" }}
-          alt="CC BY-SA"
-          src="https://mirrors.creativecommons.org/presskit/buttons/88x31/png/by.png"
+          style={{ width, cursor: 'pointer' }}
+          alt='CC BY-SA'
+          src='https://mirrors.creativecommons.org/presskit/buttons/88x31/png/by.png'
         />
-      );
-    } else if (url.includes("creativecommons.org/")) {
+      )
+    } else if (url.includes('creativecommons.org/')) {
       url = (
         <img
-          style={{ width, cursor: "pointer" }}
-          alt="CC licensed"
-          src="https://mirrors.creativecommons.org/presskit/cc.primary.srr.gif"
+          style={{ width, cursor: 'pointer' }}
+          alt='CC licensed'
+          src='https://mirrors.creativecommons.org/presskit/cc.primary.srr.gif'
         />
-      );
+      )
     } else {
-      url = <a href={url}>{url}</a>;
+      url = <a href={url}>{url}</a>
     }
-    return url;
-  };
+    return url
+  }
 
   return (
-    <table id="metadataTable">
+    <table id='metadataTable'>
       <tbody>
         {item.creators && (
           <tr>
-            <td>Opphav:</td>
+            <td style={{fontWeight: "bold"}}>{t('Created by')}:</td>
             <td>
               {item.creators.map((creator) => (
                 <div
                   style={{
-                    cursor: creator.url ? "pointer" : "default",
+                    cursor: creator.url ? 'pointer' : 'default'
                   }}
                   key={creator.id}
                 >
-                  {creator.name}
+                  {creator.name[i18n.language]}
                 </div>
               ))}
             </td>
@@ -65,12 +67,12 @@ const ItemMetadata = (props) => {
 
         {item.contributors && (
           <tr>
-            <td>Bidrag:</td>
+            <td style={{fontWeight: "bold"}}>{t('Contributed')}:</td>
             <td>
               {item.contributors.map((contributor) => (
                 <div
                   style={{
-                    cursor: contributor.url ? "pointer" : "default",
+                    cursor: contributor.url ? 'pointer' : 'default'
                   }}
                   key={contributor.id}
                 >
@@ -83,12 +85,12 @@ const ItemMetadata = (props) => {
 
         {item.publishers && (
           <tr>
-            <td>Utgiver:</td>
+            <td style={{fontWeight: "bold"}}>{t('Publisher')}:</td>
             <td>
               {item.publishers.map((publisher) => (
                 <div
                   style={{
-                    cursor: publisher.url ? "pointer" : "default",
+                    cursor: publisher.url ? 'pointer' : 'default'
                   }}
                   key={publisher.id}
                 >
@@ -96,7 +98,7 @@ const ItemMetadata = (props) => {
                     <img
                       alt={publisher.name}
                       src={publisher.media.mediaElement.url}
-                      style={{ maxHeight: "25px", maxWidth: "200px" }}
+                      style={{ maxHeight: '25px', maxWidth: '200px' }}
                     />
                   ) : (
                     <span>{publisher.name}</span>
@@ -113,12 +115,12 @@ const ItemMetadata = (props) => {
             <td>
               <div
                 style={{
-                  cursor: "pointer",
-                  color: "blue",
-                  textDecoration: "underline",
+                  cursor: 'pointer',
+                  color: 'blue',
+                  textDecoration: 'underline'
                 }}
               >
-                Mer om bildet
+                {t('About this picture')}
               </div>
             </td>
           </tr>
@@ -127,33 +129,33 @@ const ItemMetadata = (props) => {
         {item.license && (
           <tr>
             <td></td>
-            <td>{getLicense(item.license, 60)}</td>
+            <td>{getLicense(item.license)}</td>
           </tr>
         )}
 
         {item.version && (
           <tr>
-            <td>Versjon:</td>
-            <td>{item.version}</td>
+            <td style={{fontWeight: "bold"}}>{t('Version')}:</td>
+            <td>{item.lastModified}</td>
           </tr>
         )}
 
         {item.id && !item.infoUrl && (
           <tr>
-            <td>Id:</td>
-            <td>{item.id}</td>
+            <td style={{fontWeight: "bold"}}>{t('Id')}:</td>
+            <td>{item.identifier}</td>
           </tr>
         )}
 
         {item.language && (
           <tr>
-            <td>Språk:</td>
-            <td>{item.language}</td>
+            <td style={{fontWeight: "bold"}}>{t('Languages')}:</td>
+            <td>{item.language.toString()}</td>
           </tr>
         )}
       </tbody>
     </table>
-  );
-};
+  )
+}
 
-export default ItemMetadata;
+export default ItemMetadata

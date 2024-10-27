@@ -1,0 +1,42 @@
+{
+  "translation": {
+    "Unanswered": "Unanswered",
+    "My answersk": "My answers",
+    "Taxa": "Taxa",
+    "About": "About",
+    "Choose language": "Choose language",
+    "Reset all answers": "Reset all answers",
+    "No answers yet": "No answers yet",
+    "Answer the questions": "Answer the questions in the key to identify the species.",
+    "Result found": "Result found!",
+    "Possible results": "Possible results",
+    "Excluded": "Excluded",
+
+    "Created by": "Created by",
+    "Contributed": "Contributed",
+    "Publisher": "Publisher",
+    "About this picture": "About this picture",
+    "Version": "Version",
+    "Id": "Id",
+    "Languages": "Languages",
+
+    "Key for": "Identification key for {{taxon}}",
+    "Key for including": "Identification key for {{taxon}}, which includes {{includes}}",
+    "Key for included by": "Identification key for {{taxon}}, which falls under {{includedBy}}",
+    "Key for possible result": "Identification key for {{taxon}}, which has {{possibleResult}} as a possible result",
+    "Use enitre key": "Use the entire key",
+    "Use only for": "Use only for {{taxon}}",
+    "by": "by",
+    "Published by": "Published by",
+
+    "Cannot determine further": "The result cannot be determined any further",
+    "Remaining results": "These results remain:",
+    "Read more": "Read more",
+    "Idenfication key": "Identification key",
+    "Using partial key_one": "You are viewing a partial key, which is limited to one taxon.",
+    "Using partial key_other": "You are viewing a partial key, which is limited to {{count}} taxa.",
+    "Read more about the key": "Read more about the key",
+
+    "Image": "Image:"
+  }
+}

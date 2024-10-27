@@ -1,6 +1,6 @@
 {
   "name": "@artsdatabanken/clavis-viewer-web",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Made with create-react-library",
   "author": "wouterkoch",
   "license": "MIT",
@@ -28,14 +28,20 @@
   ],
   "dependencies": {
     "@babel/plugin-proposal-unicode-property-regex": "^7.18.6",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^5.15.20",
     "@mui/material": "^5.15.20",
     "@mui/x-tree-view": "^7.7.0",
+    "i18next": "^23.12.2",
+    "i18next-browser-languagedetector": "^8.0.0",
+    "i18next-http-backend": "^2.5.2",
     "microbundle-crl": "^0.13.11",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-preset-env": "^9.5.14",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-i18next": "^15.0.0",
     "react-markdown": "^9.0.1",
     "react-scripts": "^5.0.1"
   },
