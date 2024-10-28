@@ -65,7 +65,8 @@ class IdentificationInterface extends Component {
       characters: [],
       taxa: [],
       value: 1,
-      modalObject: {}
+      modalObject: {},
+      expandedItems: [],
     }
   }
 
@@ -260,6 +261,14 @@ class IdentificationInterface extends Component {
       }
     }
 
+    myData.expandedItems = ["relevant"]
+
+    if (myData.taxa.length < 7) {
+      myData.expandedItems = myData.expandedItems.concat(
+        myData.taxa.map((taxon) => taxon.id + "_relevant")
+      )
+    }
+
     this.setState(myData)
   }
 
@@ -271,11 +280,18 @@ class IdentificationInterface extends Component {
       })
   }
 
+  handleExpandedItemsChange = (event, itemIds) => {
+    this.setState({ expandedItems: itemIds })
+  };
+
   render() {
     const { value } = this.state
     // If there is a content element, the player is part of the editor and it's the content element size that counts. If not, it's the screen
 
     getScreenSizes()
+
+
+
 
     const answered = this.state.characters.filter(
       (character) => character.isAnswered
@@ -475,7 +491,8 @@ class IdentificationInterface extends Component {
             >
               <SimpleTreeView
                 disableSelection={true}
-                defaultExpandedItems={['relevant']}
+                expandedItems={this.state.expandedItems}
+                onExpandedItemsChange={this.handleExpandedItemsChange}
               >
                 <TreeItem
                   itemId='relevant'
@@ -543,7 +560,8 @@ class IdentificationInterface extends Component {
             >
               <SimpleTreeView
                 disableSelection={true}
-                defaultExpandedItems={['relevant']}
+                expandedItems={this.state.expandedItems}
+                onExpandedItemsChange={this.handleExpandedItemsChange}
               >
                 <TreeItem
                   itemId='relevant'
