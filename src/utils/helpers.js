@@ -8,11 +8,18 @@ export const capitalize = (str) => {
 };
 
 export const getImgSrc = (mediaElement, width, height) => {
+  
+  if (mediaElement["file"]["file"]){
+    return mediaElement["file"]["file"];
+  }
+  
   if (mediaElement["file"]["url"]["externalId"]) {
     return "https://www.artsdatabanken.no/Media/" + mediaElement["file"]["url"]["externalId"] + "?mode=" + parseInt(width) + "x" + parseInt(height)
   }
-  else if (mediaElement["file"]["url"].includes("/")) {
+  
+  if (mediaElement["file"]["url"].includes("/")) {
     return mediaElement["file"]["url"]
   }
+  
   return ""
 }
