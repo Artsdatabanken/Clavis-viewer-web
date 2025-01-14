@@ -23,8 +23,8 @@ function getMedia(props) {
 }
 
 function AlternativeContent(props) {
-  const { title, media } = props.alternative
 
+  const { title, media } = props.alternative
   return (
     <div
       style={{
@@ -54,7 +54,10 @@ function AlternativeContent(props) {
           flexWrap: 'wrap'
         }}
       >
-        <div>{title[i18n.language]} </div>
+        {!!title &&
+                <div>{title[i18n.language]} </div>
+        }
+
       </div>
     </div>
   )
