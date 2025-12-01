@@ -261,7 +261,8 @@ function Modal(props) {
               <img
                 src={getImgSrc(content.media['mediaElement'], 1280, 1280)}
                 style={{
-                  width: '1280px',
+                  width: 'auto',
+                  height: 'auto',
                   maxHeight: '50vh',
                   maxWidth: '100%',
                   display: 'block',
