@@ -4,7 +4,10 @@
   "description": "Web viewer for Clavis identification keys",
   "author": "wouterkoch",
   "license": "MIT",
-  "repository": "artsdatabanken/Clavis-viewer-web",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Artsdatabanken/Clavis-viewer-web.git"
+  },
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
   "source": "src/index.js",
