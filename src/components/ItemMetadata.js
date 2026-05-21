@@ -1,9 +1,22 @@
 import React from 'react'
+import { Chip, Stack } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import i18n from '../i18n'
+
+const languageLabel = (code) => {
+  try {
+    const dn = new Intl.DisplayNames([code], { type: 'language' })
+    const name = dn.of(code)
+    return name ? name.charAt(0).toUpperCase() + name.slice(1) : code
+  } catch (e) {
+    return code
+  }
+}
 
 const ItemMetadata = (props) => {
   const { item, setModal } = props
-  const t = i18n.t
+  const { t } = useTranslation()
+  const currentLang = i18n.resolvedLanguage || i18n.language
 
   const getLicense = (url, width = 95) => {
     if (url.includes('creativecommons.org/publicdomain/zero/')) {
@@ -149,8 +162,26 @@ const ItemMetadata = (props) => {
 
         {item.language && (
           <tr>
-            <td style={{fontWeight: "bold"}}>{t('Languages')}:</td>
-            <td>{item.language.toString()}</td>
+            <td style={{fontWeight: "bold", verticalAlign: "top", paddingTop: "6px"}}>{t('Languages')}:</td>
+            <td>
+              <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+                {item.language.map((code) => {
+                  const active = code === currentLang
+                  return (
+                    <Chip
+                      key={code}
+                      label={languageLabel(code)}
+                      size="small"
+                      color={active ? 'primary' : 'default'}
+                      variant={active ? 'filled' : 'outlined'}
+                      onClick={active ? undefined : () => i18n.changeLanguage(code)}
+                      aria-pressed={active}
+                      sx={{ cursor: active ? 'default' : 'pointer' }}
+                    />
+                  )
+                })}
+              </Stack>
+            </td>
           </tr>
         )}
       </tbody>
