@@ -327,32 +327,52 @@ class IdentificationInterface extends Component {
           children={children}
           sx={{
             paddingTop: '8px',
-            opacity: '0.7',
+            color: 'white',
+            opacity: 0.75,
             fontSize: '0.875rem',
             fontWeight: '500',
-            lineHeight: '1.75'
+            lineHeight: '1.75',
+            '&:hover': { opacity: 1 }
           }}
         ></Typography>
       )
     }
 
     return (
-      <div style={{ display: 'flex', flexGrow: 1, height: '100%' }}>
+      <div style={{ display: 'flex', flexGrow: 1, height: '100%', backgroundColor: '#fffcf7', fontFamily: '"Chivo", "Helvetica", "Arial", sans-serif' }}>
         <Modal modalObject={this.state.modalObject} setModal={this.setModal} />
 
         <AppBar
           position='absolute'
-          sx={{ backgroundColor: this.props.color || '#f57c00', zIndex: 1 }}
+          sx={{
+            backgroundColor: this.props.color || '#1c3840',
+            zIndex: 1,
+            boxShadow: 'none'
+          }}
         >
           <Tabs
             value={value}
             onChange={this.handleChange}
             sx={{
+              '& .MuiTab-root': {
+                color: 'rgba(255, 255, 255, 0.72)',
+                fontWeight: 400,
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+                transition: 'background-color 120ms ease, color 120ms ease'
+              },
+              '& .MuiTab-root:hover': {
+                color: '#ffffff',
+                backgroundColor: 'rgba(255, 255, 255, 0.08)'
+              },
               '& .Mui-selected': {
-                color: 'white !important'
+                color: '#ffffff !important',
+                fontWeight: '700 !important',
+                backgroundColor: 'rgba(255, 255, 255, 0.06)'
               },
               '& .MuiTabs-indicator': {
-                backgroundColor: 'white !important'
+                height: '4px',
+                backgroundColor: '#44afcb !important'
               }
             }}
           >
@@ -388,7 +408,7 @@ class IdentificationInterface extends Component {
               value={4}
               onClick={this.setModal.bind(this, { about: true })}
             >
-              <span style={{ cursor: 'pointer', color: 'rgba(0, 0, 0, 0.6)' }}>
+              <span style={{ cursor: 'pointer', color: 'inherit' }}>
                 {iconItem(<InfoIcon />, t('About'))}
               </span>
               {/* <InfoIcon style={{ marginLeft: "3em" }} /> */}

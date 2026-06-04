@@ -73,7 +73,7 @@ function Alternative(props) {
         <ButtonGroup size='large' orientation='vertical'>
           <Button
             sx={{
-              backgroundColor: 'olivedrab !important',
+              backgroundColor: '#61a360 !important',
               color: 'white !important'
             }}
             onClick={props.giveAnswer.bind(this, id, true)}
@@ -83,7 +83,7 @@ function Alternative(props) {
           {props.siblings !== 1 ? (
             <Button
               sx={{
-                backgroundColor: 'firebrick !important',
+                backgroundColor: '#b80738 !important',
                 color: 'white !important'
               }}
               onClick={props.giveAnswer.bind(this, id, false)}
@@ -102,11 +102,11 @@ function Alternative(props) {
             sx={
               answerIs
                 ? {
-                    'background-color': 'olivedrab !important',
+                    'background-color': '#61a360 !important',
                     color: 'white !important'
                   }
                 : {
-                    'background-color': 'firebrick !important',
+                    'background-color': '#b80738 !important',
                     color: 'white !important'
                   }
             }
@@ -123,9 +123,9 @@ function Alternative(props) {
   const getBoxStyle = () => {
     let style = {}
     if (answerIs) {
-      style.backgroundColor = '#E8F5E9'
+      style.backgroundColor = '#ebfbf5'
     } else if (answerIs === false) {
-      style.backgroundColor = '#ffebee'
+      style.backgroundColor = '#fdedef'
     }
     return style
   }

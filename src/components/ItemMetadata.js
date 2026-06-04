@@ -2,6 +2,7 @@ import React from 'react'
 import { Chip, Stack } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import i18n from '../i18n'
+import { ccBy, ccBySa, ccZero } from '../assets/ccIcons'
 
 const languageLabel = (code) => {
   try {
@@ -24,7 +25,7 @@ const ItemMetadata = (props) => {
         <img
           style={{ width, cursor: 'pointer' }}
           alt='Licensed CC0'
-          src='https://mirrors.creativecommons.org/presskit/buttons/88x31/png/cc-zero.png'
+          src={ccZero}
         />
       )
     } else if (url.includes('creativecommons.org/licenses/by-sa/')) {
@@ -32,25 +33,19 @@ const ItemMetadata = (props) => {
         <img
           style={{ width, cursor: 'pointer' }}
           alt='CC BY-SA'
-          src='https://mirrors.creativecommons.org/presskit/buttons/88x31/png/by-sa.png'
+          src={ccBySa}
         />
       )
     } else if (url.includes('creativecommons.org/licenses/by/')) {
       url = (
         <img
           style={{ width, cursor: 'pointer' }}
-          alt='CC BY-SA'
-          src='https://mirrors.creativecommons.org/presskit/buttons/88x31/png/by.png'
+          alt='CC BY'
+          src={ccBy}
         />
       )
     } else if (url.includes('creativecommons.org/')) {
-      url = (
-        <img
-          style={{ width, cursor: 'pointer' }}
-          alt='CC licensed'
-          src='https://mirrors.creativecommons.org/presskit/cc.primary.srr.gif'
-        />
-      )
+      url = <a href={url}>{url}</a>
     } else {
       url = <a href={url}>{url}</a>
     }
