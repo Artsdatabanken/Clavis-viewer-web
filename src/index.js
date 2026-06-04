@@ -2,11 +2,9 @@ import React from 'react'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import IdentificationInterface from './components/IdentificationInterface'
 import './i18n'
-import '@fontsource/chivo/400.css'
-import '@fontsource/chivo/500.css'
-import '@fontsource/chivo/700.css'
-import '@fontsource/chivo/400-italic.css'
-import '@fontsource/chivo/700-italic.css'
+import { injectChivoFonts } from './assets/chivoFonts'
+
+injectChivoFonts()
 
 const chivoStack = '"Chivo", "Helvetica", "Arial", sans-serif'
 
