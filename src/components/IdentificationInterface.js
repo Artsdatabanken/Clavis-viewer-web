@@ -2,7 +2,23 @@ import React, { Component } from 'react'
 import { withTranslation } from 'react-i18next'
 import i18n from '../i18n'
 
-import { Tabs, Tab, AppBar, Typography, Box, Button, Card } from '@mui/material'
+import {
+  Tabs,
+  Tab,
+  AppBar,
+  Typography,
+  Box,
+  Button,
+  Card,
+  IconButton,
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Collapse,
+  Divider
+} from '@mui/material'
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView'
 import { TreeItem } from '@mui/x-tree-view/TreeItem'
 
@@ -11,12 +27,19 @@ import VpnKeyIcon from '@mui/icons-material/VpnKey'
 import BeenhereIcon from '@mui/icons-material/Beenhere'
 import InfoIcon from '@mui/icons-material/Info'
 import RestoreIcon from '@mui/icons-material/Restore'
+import MenuIcon from '@mui/icons-material/Menu'
+import TranslateIcon from '@mui/icons-material/Translate'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import CheckIcon from '@mui/icons-material/Check'
+import CloseIcon from '@mui/icons-material/Close'
 
 import Taxon from './Taxon'
 import TaxonTreeItem from './TaxonTreeItem'
 
 import Character from './Character'
 import Modal from './Modal'
+
+import { languageLabel } from '../utils/helpers'
 
 import {
   inferAlternatives,
@@ -67,6 +90,8 @@ class IdentificationInterface extends Component {
       value: 1,
       modalObject: {},
       expandedItems: [],
+      drawerOpen: false,
+      languageExpanded: false,
     }
   }
 
@@ -148,6 +173,27 @@ class IdentificationInterface extends Component {
       modalObject.keys = this.props.keys
     }
     this.setState({ modalObject: modalObject })
+  }
+
+  openDrawer = () => {
+    this.setState({ drawerOpen: true })
+  }
+
+  closeDrawer = () => {
+    this.setState({ drawerOpen: false, languageExpanded: false })
+  }
+
+  toggleLanguageExpanded = () => {
+    this.setState((s) => ({ languageExpanded: !s.languageExpanded }))
+  }
+
+  openAbout = () => {
+    this.setState({ drawerOpen: false, languageExpanded: false })
+    this.setModal({ about: true })
+  }
+
+  changeLanguage = (code) => {
+    i18n.changeLanguage(code)
   }
 
   giveAnswer = (id, value) => {
@@ -318,25 +364,8 @@ class IdentificationInterface extends Component {
       )
     }
 
-    const ButtonInTabs = ({ className, onClick, children }) => {
-      return (
-        <Typography
-          variant='overline'
-          className={className}
-          onClick={onClick}
-          children={children}
-          sx={{
-            paddingTop: '8px',
-            color: 'white',
-            opacity: 0.75,
-            fontSize: '0.875rem',
-            fontWeight: '500',
-            lineHeight: '1.75',
-            '&:hover': { opacity: 1 }
-          }}
-        ></Typography>
-      )
-    }
+    const currentLang = i18n.resolvedLanguage || i18n.language
+    const availableLanguages = this.state.language || []
 
     return (
       <div style={{ display: 'flex', flexGrow: 1, height: '100%', backgroundColor: '#fffcf7', fontFamily: '"Chivo", "Helvetica", "Arial", sans-serif' }}>
@@ -350,71 +379,201 @@ class IdentificationInterface extends Component {
             boxShadow: 'none'
           }}
         >
-          <Tabs
-            value={value}
-            onChange={this.handleChange}
-            sx={{
-              '& .MuiTab-root': {
-                color: 'rgba(255, 255, 255, 0.72)',
-                fontWeight: 400,
-                textTransform: 'uppercase',
-                letterSpacing: '0.04em',
-                transition: 'background-color 120ms ease, color 120ms ease'
-              },
-              '& .MuiTab-root:hover': {
-                color: '#ffffff',
-                backgroundColor: 'rgba(255, 255, 255, 0.08)'
-              },
-              '& .Mui-selected': {
-                color: '#ffffff !important',
-                fontWeight: '700 !important',
-                backgroundColor: 'rgba(255, 255, 255, 0.06)'
-              },
-              '& .MuiTabs-indicator': {
-                height: '4px',
-                backgroundColor: '#44afcb !important'
-              }
-            }}
-          >
-            <Tab
-              label={iconItem(
-                <BeenhereIcon />,
-                t('My answers'),
-                answered.length
-              )}
-            />
-            <Tab
-              label={iconItem(
-                <VpnKeyIcon />,
-                t('Unanswered'),
-                this.state.relevantTaxaCount > 1 ? questions.length : 0
-              )}
-            />
-
-            {/* <Tab label={iconItem(<AddAPhotoIcon />, "Auto id")} /> */}
-
-            {!wideScreen && (
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Tabs
+              value={value}
+              onChange={this.handleChange}
+              sx={{
+                flexGrow: 1,
+                '& .MuiTab-root': {
+                  color: 'rgba(255, 255, 255, 0.72)',
+                  fontWeight: 400,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.04em',
+                  transition: 'background-color 120ms ease, color 120ms ease'
+                },
+                '& .MuiTab-root:hover': {
+                  color: '#ffffff',
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)'
+                },
+                '& .Mui-selected': {
+                  color: '#ffffff !important',
+                  fontWeight: '700 !important',
+                  backgroundColor: 'rgba(255, 255, 255, 0.06)'
+                },
+                '& .MuiTabs-indicator': {
+                  height: '4px',
+                  backgroundColor: '#44afcb !important'
+                }
+              }}
+            >
               <Tab
-                value={3}
                 label={iconItem(
-                  <ForestIcon />,
-                  t('Taxa'),
-                  this.state.relevantTaxaCount
+                  <BeenhereIcon />,
+                  t('My answers'),
+                  answered.length
                 )}
               />
-            )}
+              <Tab
+                label={iconItem(
+                  <VpnKeyIcon />,
+                  t('Unanswered'),
+                  this.state.relevantTaxaCount > 1 ? questions.length : 0
+                )}
+              />
 
-            <ButtonInTabs
-              value={4}
-              onClick={this.setModal.bind(this, { about: true })}
+              {!wideScreen && (
+                <Tab
+                  value={3}
+                  label={iconItem(
+                    <ForestIcon />,
+                    t('Taxa'),
+                    this.state.relevantTaxaCount
+                  )}
+                />
+              )}
+            </Tabs>
+
+            <IconButton
+              aria-label={t('Menu')}
+              onClick={this.openDrawer}
+              size='large'
+              sx={{
+                color: 'white',
+                marginRight: '4px',
+                '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.08)' }
+              }}
             >
-              <span style={{ cursor: 'pointer', color: 'inherit' }}>
-                {iconItem(<InfoIcon />, t('About'))}
-              </span>
-              {/* <InfoIcon style={{ marginLeft: "3em" }} /> */}
-            </ButtonInTabs>
-          </Tabs>
+              <MenuIcon sx={{ fontSize: 28 }} />
+            </IconButton>
+          </Box>
         </AppBar>
+
+        <Drawer
+          anchor='right'
+          open={this.state.drawerOpen}
+          onClose={this.closeDrawer}
+          PaperProps={{
+            sx: {
+              width: { xs: '85vw', sm: 360 },
+              maxWidth: '100%',
+              backgroundColor: '#fffcf7',
+              display: 'flex',
+              flexDirection: 'column'
+            }
+          }}
+        >
+          <Box sx={{ flexGrow: 1, paddingTop: '24px' }}>
+            <List sx={{ padding: 0 }}>
+              <ListItemButton
+                onClick={this.toggleLanguageExpanded}
+                sx={{
+                  paddingY: '14px',
+                  paddingX: '24px'
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: 48 }}>
+                  <TranslateIcon sx={{ fontSize: 28, color: '#1c3840' }} />
+                </ListItemIcon>
+                <ListItemText
+                  primary={t('Language')}
+                  primaryTypographyProps={{
+                    fontSize: '1.1rem',
+                    fontWeight: 500,
+                    color: '#1c3840'
+                  }}
+                />
+                <ExpandMoreIcon
+                  sx={{
+                    color: '#1c3840',
+                    transition: 'transform 200ms ease',
+                    transform: this.state.languageExpanded
+                      ? 'rotate(180deg)'
+                      : 'rotate(0deg)'
+                  }}
+                />
+              </ListItemButton>
+              <Collapse in={this.state.languageExpanded} timeout='auto'>
+                <List sx={{ padding: 0 }} disablePadding>
+                  {availableLanguages.map((code) => {
+                    const active = code === currentLang
+                    return (
+                      <ListItemButton
+                        key={code}
+                        selected={active}
+                        onClick={() => this.changeLanguage(code)}
+                        sx={{
+                          paddingY: '10px',
+                          paddingLeft: '72px',
+                          paddingRight: '24px'
+                        }}
+                      >
+                        <ListItemText
+                          primary={languageLabel(code)}
+                          primaryTypographyProps={{
+                            fontSize: '1rem',
+                            fontWeight: active ? 600 : 400,
+                            color: '#1c3840'
+                          }}
+                        />
+                        {active && (
+                          <CheckIcon
+                            sx={{ color: '#1c3840', fontSize: 20 }}
+                            aria-hidden='true'
+                          />
+                        )}
+                      </ListItemButton>
+                    )
+                  })}
+                </List>
+              </Collapse>
+
+              <Divider sx={{ marginX: '24px', marginY: '8px' }} />
+
+              <ListItemButton
+                onClick={this.openAbout}
+                sx={{
+                  paddingY: '14px',
+                  paddingX: '24px'
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: 48 }}>
+                  <InfoIcon sx={{ fontSize: 28, color: '#1c3840' }} />
+                </ListItemIcon>
+                <ListItemText
+                  primary={t('About')}
+                  primaryTypographyProps={{
+                    fontSize: '1.1rem',
+                    fontWeight: 500,
+                    color: '#1c3840'
+                  }}
+                />
+              </ListItemButton>
+            </List>
+          </Box>
+
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              padding: '16px'
+            }}
+          >
+            <IconButton
+              aria-label={t('Close')}
+              onClick={this.closeDrawer}
+              sx={{
+                border: '1.5px solid #1c3840',
+                color: '#1c3840',
+                width: 44,
+                height: 44,
+                '&:hover': { backgroundColor: 'rgba(28, 56, 64, 0.06)' }
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </Drawer>
 
         {this.state.taxa.length && (
           <main
