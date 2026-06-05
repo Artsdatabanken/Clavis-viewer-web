@@ -19,9 +19,6 @@ import {
   Collapse,
   Divider
 } from '@mui/material'
-import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView'
-import { TreeItem } from '@mui/x-tree-view/TreeItem'
-
 import ForestIcon from '@mui/icons-material/Forest'
 import VpnKeyIcon from '@mui/icons-material/VpnKey'
 import BeenhereIcon from '@mui/icons-material/Beenhere'
@@ -34,7 +31,7 @@ import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 
 import Taxon from './Taxon'
-import TaxonTreeItem from './TaxonTreeItem'
+import TaxaList from './TaxaList'
 
 import Character from './Character'
 import Modal from './Modal'
@@ -668,55 +665,26 @@ class IdentificationInterface extends Component {
               index={3}
               sx={{ height: '100%', overflowY: 'auto' }}
             >
-              <SimpleTreeView
-                disableSelection={true}
-                expandedItems={this.state.expandedItems}
-                onExpandedItemsChange={this.handleExpandedItemsChange}
-              >
-                <TreeItem
-                  itemId='relevant'
-                  label={
-                    <Typography variant='h5' component='h5'>
-                      {t('Possible results')} ({this.state.relevantTaxaCount})
-                    </Typography>
-                  }
-                >
-                  {this.state.taxa
-                    .filter((taxon) => taxon.isRelevant)
-                    .map((taxon) => (
-                      <TaxonTreeItem
-                        toggleDismissTaxon={this.toggleDismissTaxon}
-                        setModal={this.setModal}
-                        taxon={taxon}
-                        media={this.state.mediaElements}
-                        key={taxon.id}
-                        filter='relevant'
-                      />
-                    ))}
-                </TreeItem>
-                <TreeItem
-                  itemId='irrelevant'
-                  label={
-                    <Typography variant='h5' component='h5'>
-                      {t('Excluded')} (
-                      {this.state.taxaCount - this.state.relevantTaxaCount})
-                    </Typography>
-                  }
-                >
-                  {this.state.taxa
-                    .filter((taxon) => taxon.isIrrelevant)
-                    .map((taxon) => (
-                      <TaxonTreeItem
-                        toggleDismissTaxon={this.toggleDismissTaxon}
-                        setModal={this.setModal}
-                        media={this.state.mediaElements}
-                        taxon={taxon}
-                        key={taxon.id}
-                        filter='irrelevant'
-                      />
-                    ))}
-                </TreeItem>
-              </SimpleTreeView>
+              <TaxaList
+                taxa={this.state.taxa}
+                filter='relevant'
+                title={`${this.state.relevantTaxaCount} ${t('Possible results').toLowerCase()}`}
+                collapsible={false}
+                toggleDismissTaxon={this.toggleDismissTaxon}
+                setModal={this.setModal}
+                media={this.state.mediaElements}
+              />
+              <TaxaList
+                taxa={this.state.taxa}
+                filter='irrelevant'
+                title={t('Excluded')}
+                count={this.state.taxaCount - this.state.relevantTaxaCount}
+                collapsible={true}
+                defaultExpanded={false}
+                toggleDismissTaxon={this.toggleDismissTaxon}
+                setModal={this.setModal}
+                media={this.state.mediaElements}
+              />
             </TabPanel>
           </main>
         )}
@@ -727,65 +695,37 @@ class IdentificationInterface extends Component {
               marginTop: 45,
               minWidth: 400,
               zIndex: 0,
-              overflowY: 'auto'
+              overflowY: 'auto',
+              boxShadow: 'none'
             }}
           >
             <Box
               style={{
-                width: 350,
-                padding: 20,
+                width: 380,
+                padding: 16,
                 overflowY: 'auto'
               }}
             >
-              <SimpleTreeView
-                disableSelection={true}
-                expandedItems={this.state.expandedItems}
-                onExpandedItemsChange={this.handleExpandedItemsChange}
-              >
-                <TreeItem
-                  itemId='relevant'
-                  label={
-                    <Typography variant='h5' component='h5'>
-                      {t('Possible results')} ({this.state.relevantTaxaCount})
-                    </Typography>
-                  }
-                >
-                  {this.state.taxa
-                    .filter((taxon) => taxon.isRelevant)
-                    .map((taxon) => (
-                      <TaxonTreeItem
-                        toggleDismissTaxon={this.toggleDismissTaxon}
-                        setModal={this.setModal}
-                        taxon={taxon}
-                        media={this.state.mediaElements}
-                        key={taxon.id}
-                        filter='relevant'
-                      />
-                    ))}
-                </TreeItem>
-                <TreeItem
-                  itemId='irrelevant'
-                  label={
-                    <Typography variant='h5' component='h5'>
-                      {t('Excluded')} (
-                      {this.state.taxaCount - this.state.relevantTaxaCount})
-                    </Typography>
-                  }
-                >
-                  {this.state.taxa
-                    .filter((taxon) => taxon.isIrrelevant)
-                    .map((taxon) => (
-                      <TaxonTreeItem
-                        toggleDismissTaxon={this.toggleDismissTaxon}
-                        setModal={this.setModal}
-                        taxon={taxon}
-                        media={this.state.mediaElements}
-                        key={taxon.id}
-                        filter='irrelevant'
-                      />
-                    ))}
-                </TreeItem>
-              </SimpleTreeView>
+              <TaxaList
+                taxa={this.state.taxa}
+                filter='relevant'
+                title={`${this.state.relevantTaxaCount} ${t('Possible results').toLowerCase()}`}
+                collapsible={false}
+                toggleDismissTaxon={this.toggleDismissTaxon}
+                setModal={this.setModal}
+                media={this.state.mediaElements}
+              />
+              <TaxaList
+                taxa={this.state.taxa}
+                filter='irrelevant'
+                title={t('Excluded')}
+                count={this.state.taxaCount - this.state.relevantTaxaCount}
+                collapsible={true}
+                defaultExpanded={false}
+                toggleDismissTaxon={this.toggleDismissTaxon}
+                setModal={this.setModal}
+                media={this.state.mediaElements}
+              />
             </Box>
           </Card>
         )}

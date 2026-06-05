@@ -22,6 +22,21 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
 import { capitalize, getImgSrc } from '../utils/helpers'
 
+const getSurvivingChildLabel = (taxon) => {
+  if (!taxon || !taxon.children || !taxon.children.length) return null
+  const relevant = taxon.children.filter((c) => c.isRelevant)
+  if (relevant.length !== 1) return null
+  const child = relevant[0]
+  const lbl = child.label
+  if (lbl && typeof lbl === 'object' && lbl[i18n.language]) {
+    return capitalize(lbl[i18n.language])
+  }
+  if (child.vernacularName && child.vernacularName[i18n.language]) {
+    return capitalize(child.vernacularName[i18n.language])
+  }
+  return child.scientificName || null
+}
+
 function Modal(props) {
   let { modalObject, setModal } = props
   const t = i18n.t
@@ -49,10 +64,7 @@ function Modal(props) {
           </Typography>
 
           {modalObject.results.map((c) => {
-            let form
-            if (c.children && c.children.length === 1) {
-              form = c.children[0]
-            }
+            const survivingLabel = getSurvivingChildLabel(c)
 
             return (
               <div>
@@ -76,20 +88,23 @@ function Modal(props) {
                 <Typography
                   variant='body2'
                   component='h3'
-                  sx={{ marginBottom: '1em', fontSize: '1.2em' }}
+                  sx={{ marginBottom: '0.25em', fontSize: '1.2em' }}
                 >
                   <i>{c.scientificName}</i>
-                  {form && (
-                    <Chip
-                      sx={{
-                        marginLeft: 5
-                      }}
-                      size='small'
-                      variant='default'
-                      label={capitalize(form.vernacularName)}
-                    />
-                  )}
                 </Typography>
+                {survivingLabel && (
+                  <Typography
+                    component='div'
+                    sx={{
+                      marginBottom: '1em',
+                      fontSize: '1.8em',
+                      lineHeight: 1.1,
+                      color: '#262F31'
+                    }}
+                  >
+                    {survivingLabel}
+                  </Typography>
+                )}
 
                 {c.descriptionUrl && (
                   <div>
@@ -335,10 +350,7 @@ function Modal(props) {
       taxon.media = child.media
     }
 
-    let form
-    if (taxon.children && taxon.children.length === 1) {
-      form = taxon.children[0]
-    }
+    const survivingLabel = getSurvivingChildLabel(taxon)
 
     keys = []
 
@@ -383,18 +395,23 @@ function Modal(props) {
         <Typography
           variant='body2'
           component='h2'
-          sx={{ marginBottom: '1em', fontSize: '1.3em' }}
+          sx={{ marginBottom: survivingLabel ? '0.25em' : '1em', fontSize: '1.3em' }}
         >
           <i>{taxon.scientificName}</i>
-          {form && form.vernacularName && (
-            <Chip
-              sx={{ marginLeft: 5 }}
-              size='small'
-              variant='default'
-              label={capitalize(form.vernacularName)}
-            />
-          )}
         </Typography>
+        {survivingLabel && (
+          <Typography
+            component='div'
+            sx={{
+              marginBottom: '1em',
+              fontSize: '2em',
+              lineHeight: 1.1,
+              color: '#262F31'
+            }}
+          >
+            {survivingLabel}
+          </Typography>
+        )}
 
         <Typography variant='body1' component='p' sx={{ fontSize: '1.4em' }}>
           <b>{taxon.description}</b>

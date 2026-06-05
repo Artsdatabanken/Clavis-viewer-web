@@ -1,16 +1,19 @@
 import React from "react";
 import i18n from "../i18n";
 
-import { Card, CardHeader, IconButton, Avatar, Typography, Chip } from '@mui/material';
+import { Box, IconButton, Typography } from '@mui/material';
 
-import HighlightOffIcon from "@mui/icons-material/HighlightOff";
+import ClearIcon from "@mui/icons-material/Clear";
 import RestoreIcon from "@mui/icons-material/Restore";
 
 import { getRelevantTaxaCount } from "../utils/logic";
-import { capitalize, getImgSrc} from "../utils/helpers";
+import { capitalize, getImgSrc } from "../utils/helpers";
+
+const ACCENT = "#005a71";
+const DIVIDER = "#f2dfc5";
 
 function Taxon(props) {
-  const { vernacularName, scientificName, id, label} = props.taxon;
+  const { vernacularName, scientificName, id, label } = props.taxon;
   let media = props.taxon.media;
 
   let children = [];
@@ -22,115 +25,161 @@ function Taxon(props) {
     }
   }
 
-  // If this taxon has no media, but is a result with children, set the media element to that of the first child
-  if (!media && children.length) {
-    let child = children.find((child) => child.media);
+  const survivingChild = children.length === 1 ? children[0] : null;
+
+  if (!media && survivingChild && survivingChild.media) {
+    media = survivingChild.media;
+  } else if (!media && children.length) {
+    const child = children.find((c) => c.media);
     if (child) {
       media = child.media;
     }
   }
 
-  const getButton = () => {
-    if (props.taxon.dismissed) {
+  const survivingLabel = (() => {
+    if (!survivingChild) return null;
+    const lbl = survivingChild.label;
+    if (lbl && typeof lbl === "object" && lbl[i18n.language]) {
+      return capitalize(lbl[i18n.language]);
+    }
+    if (survivingChild.vernacularName && survivingChild.vernacularName[i18n.language]) {
+      return capitalize(survivingChild.vernacularName[i18n.language]);
+    }
+    if (survivingChild.scientificName) {
+      return survivingChild.scientificName;
+    }
+    return null;
+  })();
+
+  const dismissed = props.taxon.dismissed;
+  const showDismiss = props.filter !== "irrelevant" && !props.standalone;
+
+  const renderRightButton = () => {
+    if (dismissed) {
       return (
         <IconButton
-          edge="end"
-          aria-label="dismiss"
-          onClick={props.toggleDismissTaxon.bind(this, id)}
+          aria-label="restore"
+          size="small"
+          onClick={(e) => {
+            e.stopPropagation();
+            props.toggleDismissTaxon(id);
+          }}
+          sx={{ color: ACCENT }}
         >
           <RestoreIcon />
         </IconButton>
       );
-    } else if (props.filter !== "irrelevant" && !props.standalone) {
+    }
+    if (showDismiss) {
       return (
-        <HighlightOffIcon
-          onClick={props.toggleDismissTaxon.bind(this, id)}
-          style={{ color: "#aaa", paddingTop: "15px", paddingRight: "5px" }}
+        <ClearIcon
+          onClick={(e) => {
+            e.stopPropagation();
+            props.toggleDismissTaxon(id);
+          }}
+          sx={{
+            color: ACCENT,
+            cursor: "pointer",
+            fontSize: 26,
+            alignSelf: "center"
+          }}
         />
       );
     }
-    return " ";
+    return null;
   };
 
-  const nameCapitalizedHeader = (
-    <Typography
-      variant="h2"
-      style={{ fontSize: "1.12em", lineHeight: "1em" }}
-      gutterBottom
-    >
-      {
-        !!vernacularName && !!vernacularName[i18n.language] ? 
-          capitalize(vernacularName[i18n.language])
-        : 
-        (
-          !!scientificName ?
-            <i style={{fontStyle: "italic"}}>{scientificName}</i>
-          :
-          (
-            !!label ? 
-            label[i18n.language]
-            :
-              ""
-            )
-        )
-      }
+  const nameText = !!vernacularName && !!vernacularName[i18n.language]
+    ? capitalize(vernacularName[i18n.language])
+    : !!scientificName
+      ? scientificName
+      : !!label
+        ? label[i18n.language]
+        : "";
 
-      {!!props.taxon.children && !!props.taxon.children.length &&
-        !props.taxon.children[0].label &&
-        " (" + getRelevantTaxaCount(props.taxon) + ")"}
-    </Typography>
-  );
+  const isItalicName = !(!!vernacularName && !!vernacularName[i18n.language]) && !!scientificName;
 
-  const scientificNameHeader = (
-    <Typography variant="body2" gutterBottom style={{ fontSize: "0.8em" }}>
-      {
-        ((!!vernacularName && !!vernacularName[i18n.language]) || !!label) &&
-        <i style={{fontStyle: "italic"}}>{scientificName}</i>
-      }
-    </Typography>
-  );
-
-  let cardStyle = { cursor: "pointer" };
-  if (props.filter === "irrelevant") {
-    cardStyle.backgroundColor = "#eee";
-  }
+  const childCount = !!props.taxon.children && !!props.taxon.children.length && !props.taxon.children[0].label
+    ? getRelevantTaxaCount(props.taxon)
+    : null;
 
   return (
-    <Card variant="outlined" style={cardStyle}>
-      <div style={{ display: "flex" }}>
-        {props.taxon.media && (
-          <Avatar
-            variant="square"
-            src={getImgSrc(props.taxon.media["mediaElement"], 55, 55)}
-            style={{ width: "55px", height: "55px" }}
-            onClick={props.setModal.bind(this, { taxon: props.taxon })}
-          />
-        )}
-        <CardHeader
-          style={{ paddingBottom: 0, flex: "1" }}
-          disableTypography={true}
-          title={nameCapitalizedHeader}
-          subheader={scientificNameHeader}
-          onClick={props.setModal.bind(this, { taxon: props.taxon })}
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "stretch",
+        padding: "12px 16px",
+        backgroundColor: props.filter === "irrelevant" ? "#f5f0e8" : "transparent",
+        cursor: "pointer",
+        gap: "16px"
+      }}
+      onClick={() => props.setModal({ taxon: props.taxon })}
+    >
+      {media ? (
+        <Box
+          component="img"
+          src={getImgSrc(media["mediaElement"], 128, 128)}
+          alt=""
+          sx={{
+            width: 64,
+            height: 64,
+            objectFit: "cover",
+            borderRadius: "6px",
+            flex: "0 0 64px"
+          }}
         />
+      ) : (
+        <Box sx={{ width: 64, height: 64, flex: "0 0 64px" }} />
+      )}
 
-        <div style={{ flex: "0" }}>{getButton()}</div>
-      </div>
-      <div style={{ paddingLeft: "50px" }}>
-        {children.length === 1 &&
-          (children[0].label) && (
-            <Chip
-              style={{ marginLeft: 15, marginBottom: 15, marginTop: -5 }}
-              size="small"
-              variant="default"
-              label={
-                capitalize(children[0].label)
-              }
-            />
-          )}
-      </div>
-    </Card>
+      <Box sx={{ flex: "1 1 auto", display: "flex", flexDirection: "column", justifyContent: "center", minWidth: 0 }}>
+        <Typography
+          component="div"
+          sx={{
+            fontSize: "1.05rem",
+            fontWeight: 700,
+            lineHeight: 1.25,
+            color: "#262F31",
+            fontStyle: isItalicName ? "italic" : "normal"
+          }}
+        >
+          {nameText}
+          {childCount !== null && ` (${childCount})`}
+        </Typography>
+        {!!scientificName && !isItalicName && (
+          <Typography
+            component="div"
+            sx={{
+              fontSize: "0.9rem",
+              fontStyle: "italic",
+              color: "#262F31",
+              lineHeight: 1.3
+            }}
+          >
+            {scientificName}
+          </Typography>
+        )}
+        {survivingLabel && (
+          <Typography
+            component="div"
+            sx={{
+              fontSize: "0.9rem",
+              color: "#262F31",
+              lineHeight: 1.3,
+              marginTop: "2px"
+            }}
+          >
+            {survivingLabel}
+          </Typography>
+        )}
+      </Box>
+
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        {renderRightButton()}
+      </Box>
+    </Box>
   );
 }
 
+export { DIVIDER, ACCENT };
 export default Taxon;
