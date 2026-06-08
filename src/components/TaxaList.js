@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import { Box, Typography, Collapse, IconButton } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
@@ -8,16 +8,29 @@ import Taxon from './Taxon'
 const DIVIDER = '#f2dfc5'
 const TITLE_BG = '#faf1e4'
 const ACCENT = '#005a71'
+const CHEVRON_SLOT = 36
 
-function TaxonRow({ taxon, filter, depth, props }) {
-  const [expanded, setExpanded] = useState(false)
+function isExpandable(taxon, filter) {
+  if (taxon.isEndPoint) return false
+  const children = (taxon.children || []).filter((c) =>
+    filter === 'irrelevant' ? c.isIrrelevant : c.isRelevant
+  )
+  return children.length >= 1
+}
+
+function TaxonRow({ taxon, filter, depth, props, defaultExpanded, hideDismiss }) {
+  const [expanded, setExpanded] = useState(!!defaultExpanded)
+
+  useEffect(() => {
+    setExpanded(!!defaultExpanded)
+  }, [defaultExpanded])
 
   const children = (taxon.children || []).filter((c) =>
     filter === 'irrelevant' ? c.isIrrelevant : c.isRelevant
   )
-
-  const hasExpandableChildren =
-    !taxon.isEndPoint && children.length > 1
+  const expandable = isExpandable(taxon, filter)
+  const childAutoExpand = children.length === 1
+  const childHideDismiss = hideDismiss && children.length === 1
 
   return (
     <React.Fragment>
@@ -29,6 +42,34 @@ function TaxonRow({ taxon, filter, depth, props }) {
           alignItems: 'stretch'
         }}
       >
+        <Box
+          sx={{
+            width: CHEVRON_SLOT,
+            flex: `0 0 ${CHEVRON_SLOT}px`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          {expandable && (
+            <IconButton
+              aria-label={expanded ? 'collapse' : 'expand'}
+              size='small'
+              onClick={(e) => {
+                e.stopPropagation()
+                setExpanded((v) => !v)
+              }}
+              sx={{ color: ACCENT }}
+            >
+              <ExpandMoreIcon
+                sx={{
+                  transition: 'transform 200ms ease',
+                  transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)'
+                }}
+              />
+            </IconButton>
+          )}
+        </Box>
         <Box sx={{ flex: '1 1 auto', minWidth: 0 }}>
           <Taxon
             taxon={taxon}
@@ -36,32 +77,11 @@ function TaxonRow({ taxon, filter, depth, props }) {
             setModal={props.setModal}
             filter={filter}
             media={props.media}
+            hideDismiss={hideDismiss}
           />
         </Box>
-        {hasExpandableChildren && (
-          <IconButton
-            aria-label={expanded ? 'collapse' : 'expand'}
-            size='small'
-            onClick={(e) => {
-              e.stopPropagation()
-              setExpanded((v) => !v)
-            }}
-            sx={{
-              color: ACCENT,
-              alignSelf: 'center',
-              marginRight: '8px'
-            }}
-          >
-            <ExpandMoreIcon
-              sx={{
-                transition: 'transform 200ms ease',
-                transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)'
-              }}
-            />
-          </IconButton>
-        )}
       </Box>
-      {hasExpandableChildren && (
+      {expandable && (
         <Collapse in={expanded} timeout='auto'>
           {children.map((child) => (
             <TaxonRow
@@ -70,6 +90,8 @@ function TaxonRow({ taxon, filter, depth, props }) {
               filter={filter}
               depth={depth + 1}
               props={props}
+              defaultExpanded={childAutoExpand}
+              hideDismiss={childHideDismiss}
             />
           ))}
         </Collapse>
@@ -85,6 +107,11 @@ function TaxaList(props) {
   const filteredTaxa = taxa.filter((t) =>
     filter === 'irrelevant' ? t.isIrrelevant : t.isRelevant
   )
+
+  const expandableIds = filteredTaxa
+    .filter((t) => isExpandable(t, filter))
+    .map((t) => t.id)
+  const autoExpandId = expandableIds.length === 1 ? expandableIds[0] : null
 
   return (
     <Box
@@ -137,6 +164,8 @@ function TaxaList(props) {
             filter={filter}
             depth={0}
             props={props}
+            defaultExpanded={autoExpandId === taxon.id}
+            hideDismiss={filter !== 'irrelevant' && filteredTaxa.length === 1}
           />
         ))}
       </Collapse>

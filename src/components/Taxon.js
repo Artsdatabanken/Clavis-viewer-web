@@ -25,7 +25,8 @@ function Taxon(props) {
     }
   }
 
-  const survivingChild = children.length === 1 ? children[0] : null;
+  const survivingChild =
+    props.taxon.isEndPoint && children.length === 1 ? children[0] : null;
 
   if (!media && survivingChild && survivingChild.media) {
     media = survivingChild.media;
@@ -70,7 +71,7 @@ function Taxon(props) {
         </IconButton>
       );
     }
-    if (showDismiss) {
+    if (showDismiss && !props.hideDismiss) {
       return (
         <ClearIcon
           onClick={(e) => {
@@ -94,7 +95,7 @@ function Taxon(props) {
     : !!scientificName
       ? scientificName
       : !!label
-        ? label[i18n.language]
+        ? capitalize(label[i18n.language])
         : "";
 
   const isItalicName = !(!!vernacularName && !!vernacularName[i18n.language]) && !!scientificName;

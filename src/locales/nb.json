@@ -36,6 +36,7 @@
     "Cannot determine further": "Resultatet kan ikke bestemmes ytterligere",
     "Remaining results": "Følgende resultater gjenstår:",
     "Read more": "Les mer",
+    "Read more about": "Les mer om",
     "Idenfication key": "Identifikasjonsnøkkel",
     "Using partial key_one": "Du ser på en delnøkkel, som er begrenset til ett takson.",
     "Using partial key_other": "Du ser på en delnøkkel, som er begrenset til {{count}} taksa.",

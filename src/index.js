@@ -1,5 +1,6 @@
 import React from 'react'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
+import CssBaseline from '@mui/material/CssBaseline'
 import IdentificationInterface from './components/IdentificationInterface'
 import './i18n'
 import { injectChivoFonts } from './assets/chivoFonts'
@@ -30,6 +31,7 @@ const theme = createTheme({
 export const ClavisViewer = ({ clavis, color, scientificNameFilter, language }) => {
   return (
     <ThemeProvider theme={theme}>
+      <CssBaseline />
       <IdentificationInterface clavis={clavis} color={color} scientificNameFilter={scientificNameFilter} language={language} />
     </ThemeProvider>
   )

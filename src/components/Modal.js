@@ -1,18 +1,18 @@
-import React from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 import i18n from '../i18n'
 
 import {
-  Button,
+  Box,
   DialogTitle,
   DialogContent,
   Dialog,
   IconButton,
   Typography,
-  Chip,
   Divider
 } from '@mui/material'
 
 import CloseIcon from '@mui/icons-material/Close'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 
 import ReactMarkdown from 'react-markdown'
 
@@ -21,6 +21,141 @@ import KeyInfo from './KeyInfo'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
 import { capitalize, getImgSrc } from '../utils/helpers'
+
+const baseLang = (lng) => (lng || '').toLowerCase().split('-')[0]
+
+const LINK_COLOR = '#005a71'
+
+const resolveExternalUrl = (descriptionUrl) => {
+  if (!descriptionUrl) return null
+  if (typeof descriptionUrl === 'string') return descriptionUrl
+  const entry = descriptionUrl[i18n.language] || descriptionUrl
+  if (entry && entry.serviceId === 'service:nbic_page' && entry.externalId) {
+    return `https://artsdatabanken.no/Pages/${entry.externalId}`
+  }
+  return null
+}
+
+const introCache = new Map()
+
+const resolveIngressSource = (descriptionUrl, externalReference) => {
+  if (descriptionUrl && typeof descriptionUrl !== 'string') {
+    const entry = descriptionUrl[i18n.language]
+    if (entry && entry.serviceId === 'service:nbic_page' && entry.externalId) {
+      return { endpoint: `/api/page-intro/${entry.externalId}`, key: `page:${entry.externalId}` }
+    }
+  }
+  if (
+    externalReference &&
+    externalReference.serviceId === 'service:nbic_taxa' &&
+    externalReference.externalId
+  ) {
+    return {
+      endpoint: `/api/taxon-intro/${externalReference.externalId}`,
+      key: `taxon:${externalReference.externalId}`
+    }
+  }
+  return null
+}
+
+const useIngress = (descriptionUrl, externalReference) => {
+  const source = resolveIngressSource(descriptionUrl, externalReference)
+  const cacheKey = source && source.key
+
+  const [data, setData] = useState(
+    cacheKey ? introCache.get(cacheKey) || null : null
+  )
+
+  useEffect(() => {
+    if (!source) {
+      setData(null)
+      return
+    }
+    if (introCache.has(source.key)) {
+      setData(introCache.get(source.key))
+      return
+    }
+    let cancelled = false
+    fetch(source.endpoint)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        const value = d || null
+        introCache.set(source.key, value)
+        if (!cancelled) setData(value)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [cacheKey])
+
+  return data
+}
+
+const ReadMoreLink = ({ descriptionUrl, externalReference, label }) => {
+  const directHref = resolveExternalUrl(descriptionUrl)
+  const fetched = useIngress(descriptionUrl, externalReference)
+  const showIngress =
+    fetched &&
+    fetched.ingress &&
+    (!fetched.langcode || baseLang(fetched.langcode) === baseLang(i18n.language))
+  const href = directHref || (fetched && fetched.pageUrl) || null
+
+  if (!showIngress && !href) return null
+
+  return (
+    <Box>
+      {showIngress && (
+        <Typography
+          component='p'
+          sx={{
+            fontSize: '1.1em',
+            lineHeight: 1.5,
+            color: '#262F31',
+            marginTop: 0,
+            marginBottom: '0.75em'
+          }}
+        >
+          {fetched.ingress}
+        </Typography>
+      )}
+      {href && (
+        <Box
+          component='a'
+          href={href}
+          target='_blank'
+          rel='noopener noreferrer'
+          sx={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '4px',
+            color: LINK_COLOR,
+            textDecoration: 'none',
+            borderBottom: `2px solid ${LINK_COLOR}`,
+            paddingBottom: '3px',
+            fontFamily: 'inherit',
+            fontSize: '0.875rem',
+            lineHeight: 1.6,
+            fontWeight: 400
+          }}
+        >
+          <span>{label}</span>
+          <OpenInNewIcon sx={{ fontSize: 16 }} />
+        </Box>
+      )}
+    </Box>
+  )
+}
+
+const taxonNameNode = (taxon) => {
+  if (taxon && taxon.vernacularName && taxon.vernacularName[i18n.language]) {
+    return taxon.vernacularName[i18n.language]
+  }
+  if (taxon && taxon.scientificName) {
+    return <i>{taxon.scientificName}</i>
+  }
+  return null
+}
 
 const getSurvivingChildLabel = (taxon) => {
   if (!taxon || !taxon.children || !taxon.children.length) return null
@@ -106,17 +241,17 @@ function Modal(props) {
                   </Typography>
                 )}
 
-                {c.descriptionUrl && (
+                {(c.descriptionUrl || c.externalReference) && (
                   <div>
-                    <Button
-                      sx={{
-                        'background-color': 'rgb(245, 124, 0) !important',
-                        color: 'white !important'
-                      }}
-                      onClick={setModal.bind(this, { url: c.descriptionUrl })}
-                    >
-                      {t('Read more')}
-                    </Button>
+                    <ReadMoreLink
+                      descriptionUrl={c.descriptionUrl}
+                      externalReference={c.externalReference}
+                      label={
+                        <Fragment>
+                          {t('Read more about')} {taxonNameNode(c)}
+                        </Fragment>
+                      }
+                    />
                   </div>
                 )}
               </div>
@@ -125,30 +260,6 @@ function Modal(props) {
         </div>
       )
     }
-  } else if (modalObject.url) {
-    let url = ''
-
-    // If the url is a string, use it as is
-    if (typeof modalObject.url === 'string') {
-      url = modalObject.url
-    } else if (
-      modalObject.url[i18n.language] &&
-      modalObject.url[i18n.language].serviceId &&
-      modalObject.url[i18n.language].serviceId === 'service:nbic_page'
-    ) {
-      url = `https://artsdatabanken.no/Widgets/${
-        modalObject.url[i18n.language].externalId
-      }`
-    }
-
-    modalContent = (
-      <object
-        aria-label='External page'
-        type='text/html'
-        data={url}
-        style={{"width": "600px", "height": "1000px", "max-width": "100%", "max-height": "100%"}}
-      ></object>
-    )
   } else if (modalObject.about) {
     let key = modalObject.about
 
@@ -210,15 +321,10 @@ function Modal(props) {
 
         {false && key.descriptionUrl && (
           <div style={{ paddingTop: '1em' }}>
-            <Button
-              sx={{
-                'background-color': 'rgb(245, 124, 0) !important',
-                color: 'white !important'
-              }}
-              onClick={setModal.bind(this, { url: key.descriptionUrl })}
-            >
-              {t('Read more about the key')}
-            </Button>
+            <ReadMoreLink
+              descriptionUrl={key.descriptionUrl}
+              label={t('Read more about the key')}
+            />
           </div>
         )}
 
@@ -263,13 +369,7 @@ function Modal(props) {
   } else if (modalObject.character || modalObject.alternative) {
     let content = modalObject.character || modalObject.alternative
 
-    if (
-      content.descriptionUrl &&
-      !(content.media || content.description || content.descriptionDetails)
-    ) {
-      setModal({ url: content.descriptionUrl })
-    } else {
-      modalContent = (
+    modalContent = (
         <div style={{ margin: '0px' }}>
           {content.media && (
             <div>
@@ -291,30 +391,27 @@ function Modal(props) {
             {content.title[i18n.language]}
           </Typography>
 
-          <Typography variant='body1' component='p' sx={{ fontSize: '1.4em' }}>
-            <b>
-              {content.description ? content.description[i18n.language] : ''}
-            </b>
-          </Typography>
+          {content.description && content.description[i18n.language] && (
+            <Typography variant='body1' component='p' sx={{ fontSize: '1.4em' }}>
+              <b>{content.description[i18n.language]}</b>
+            </Typography>
+          )}
 
-          <Typography
-            variant='body2'
-            component='div'
-            sx={{ marginBottom: '3em', fontSize: '1.2em' }}
-          >
-            <ReactMarkdown children={content.descriptionDetails} />
-          </Typography>
+          {content.descriptionDetails && (
+            <Typography
+              variant='body2'
+              component='div'
+              sx={{ marginBottom: '1em', fontSize: '1.2em' }}
+            >
+              <ReactMarkdown children={content.descriptionDetails} />
+            </Typography>
+          )}
           {content.descriptionUrl && (
             <div>
-              <Button
-                sx={{
-                  'background-color': 'rgb(245, 124, 0) !important',
-                  color: 'white !important'
-                }}
-                onClick={setModal.bind(this, { url: content.descriptionUrl })}
-              >
-                {t('Read more')}
-              </Button>
+              <ReadMoreLink
+                descriptionUrl={content.descriptionUrl}
+                label={t('Read more')}
+              />
             </div>
           )}
 
@@ -337,7 +434,6 @@ function Modal(props) {
             )}
         </div>
       )
-    }
   }
 
   if (modalObject.taxon) {
@@ -413,28 +509,32 @@ function Modal(props) {
           </Typography>
         )}
 
-        <Typography variant='body1' component='p' sx={{ fontSize: '1.4em' }}>
-          <b>{taxon.description}</b>
-        </Typography>
+        {taxon.description && (
+          <Typography variant='body1' component='p' sx={{ fontSize: '1.4em' }}>
+            <b>{taxon.description}</b>
+          </Typography>
+        )}
 
-        <Typography
-          variant='body2'
-          component='div'
-          sx={{ marginBottom: '3em', fontSize: '1.2em' }}
-        >
-          <ReactMarkdown children={taxon.descriptionDetails} />
-        </Typography>
-        {taxon.descriptionUrl && (
+        {taxon.descriptionDetails && (
+          <Typography
+            variant='body2'
+            component='div'
+            sx={{ marginBottom: '1em', fontSize: '1.2em' }}
+          >
+            <ReactMarkdown children={taxon.descriptionDetails} />
+          </Typography>
+        )}
+        {(taxon.descriptionUrl || taxon.externalReference) && (
           <div>
-            <Button
-              sx={{
-                'background-color': 'rgb(245, 124, 0) !important',
-                color: 'white !important'
-              }}
-              onClick={setModal.bind(this, { url: taxon.descriptionUrl })}
-            >
-              {t('Read more')}
-            </Button>
+            <ReadMoreLink
+              descriptionUrl={taxon.descriptionUrl}
+              externalReference={taxon.externalReference}
+              label={
+                <Fragment>
+                  {t('Read more about')} {taxonNameNode(taxon)}
+                </Fragment>
+              }
+            />
           </div>
         )}
 
@@ -462,7 +562,7 @@ function Modal(props) {
             <Typography variant='overline' component='p'>
               Følgende {followUpKeys.length === 1 ? 'nøkkel' : 'nøkler'} kan
               brukes til å artsbestemme{' '}
-              {capitalize(taxon.vernacularName[i18n.language]) ||
+              {(taxon.vernacularName && taxon.vernacularName[i18n.language]) ||
                 taxon.scientificName}{' '}
               nærmere:
             </Typography>

@@ -19,7 +19,7 @@ function Character(props) {
     character.states.filter((a) => a.answerIs === undefined).length - 1
 
   return (
-    <Box sx={{ marginBottom: '24px' }}>
+    <Box sx={{ marginTop: '36px', marginBottom: '24px' }}>
       <Box
         sx={{
           display: 'flex',
@@ -48,17 +48,19 @@ function Character(props) {
         <Typography
           variant='h6'
           sx={{
-            fontSize: '1.1rem',
-            fontWeight: 600,
+            fontSize: '1rem',
+            fontWeight: 700,
             color: '#1c3840',
-            margin: 0
+            margin: 0,
+            textTransform: 'uppercase',
+            letterSpacing: '0.06em'
           }}
         >
           {character.title[i18n.language]}
         </Typography>
       </Box>
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
         {character.states.map((state) => (
           <Alternative
             key={state.id}
