@@ -51,8 +51,7 @@ function Character(props) {
             fontSize: '1rem',
             fontWeight: 700,
             color: '#1c3840',
-            margin: 0,
-            letterSpacing: '0.06em'
+            margin: 0
           }}
         >
           {character.title[i18n.language]}
