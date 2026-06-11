@@ -7,7 +7,10 @@ on:
   workflow_dispatch:
   release:
     types: [created]
-    
+
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
 
 jobs:
   build:
@@ -29,7 +32,8 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
+      - run: npm install -g npm@latest
       - run: npm ci
       - run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+          NODE_AUTH_TOKEN: ""
