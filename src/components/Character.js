@@ -46,13 +46,12 @@ function Character(props) {
           <HelpIcon sx={{ color: '#1c3840' }} />
         )}
         <Typography
-          variant='h6'
+          variant='h3'
           sx={{
             fontSize: '1rem',
             fontWeight: 700,
             color: '#1c3840',
             margin: 0,
-            textTransform: 'uppercase',
             letterSpacing: '0.06em'
           }}
         >

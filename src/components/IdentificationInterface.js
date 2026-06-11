@@ -612,7 +612,7 @@ class IdentificationInterface extends Component {
                 </div>
               ) : (
                 <span>
-                  <Typography variant='h5' component='h5'>
+                  <Typography variant='h5' component='h3'>
                     {t('No answers yet')}
                   </Typography>
                   <Typography variant='subtitle1'>
@@ -640,7 +640,7 @@ class IdentificationInterface extends Component {
 
               {this.state.relevantTaxaCount === 1 && (
                 <div>
-                  <Typography variant='h5' component='h5'>
+                  <Typography variant='h5' component='h3'>
                     {t('Result found')}
                   </Typography>
                   <Taxon

@@ -190,7 +190,7 @@ function Modal(props) {
     } else {
       modalContent = (
         <div style={{ margin: '25px' }}>
-          <Typography variant='h4' sx={{ fontSize: '2em' }} component='h1'>
+          <Typography variant='h4' sx={{ fontSize: '2em' }} component='h3'>
             {t('The result cannot be determined any further')}
           </Typography>
 
@@ -207,7 +207,7 @@ function Modal(props) {
                 <Typography
                   variant='h2'
                   sx={{ fontSize: '1.82em' }}
-                  component='h2'
+                  component='h4'
                 >
                   {c.vernacularName &&
                     c.vernacularName[i18n.language] &&
@@ -222,7 +222,7 @@ function Modal(props) {
                 </Typography>
                 <Typography
                   variant='body2'
-                  component='h3'
+                  component='h5'
                   sx={{ marginBottom: '0.25em', fontSize: '1.2em' }}
                 >
                   <i>{c.scientificName}</i>
@@ -286,7 +286,7 @@ function Modal(props) {
 
     modalContent = (
       <div style={{ margin: '25px' }}>
-        <Typography variant='h3' component='h1'>
+        <Typography variant='h3' component='h3'>
           {key.title[i18n.language]}
         </Typography>
         <Typography variant='overline' component='span'>
@@ -387,7 +387,7 @@ function Modal(props) {
             </div>
           )}
 
-          <Typography variant='h2' sx={{ fontSize: '1.7em' }} component='h2'>
+          <Typography variant='h2' sx={{ fontSize: '1.7em' }} component='h3'>
             {content.title[i18n.language]}
           </Typography>
 
@@ -424,7 +424,7 @@ function Modal(props) {
                 <Typography
                   variant='body2'
                   sx={{ fontSize: '1.3em' }}
-                  component='h2'
+                  component='h4'
                 >
                   {t('Image')}
                 </Typography>
@@ -480,7 +480,7 @@ function Modal(props) {
             />
           </div>
         )}
-        <Typography variant='h2' sx={{ fontSize: '2.5em' }} component='h2'>
+        <Typography variant='h2' sx={{ fontSize: '2.5em' }} component='h3'>
           {!!taxon.vernacularName &&
             capitalize(taxon.vernacularName[i18n.language])}
           {!taxon.vernacularName &&
@@ -490,7 +490,7 @@ function Modal(props) {
 
         <Typography
           variant='body2'
-          component='h2'
+          component='h4'
           sx={{ marginBottom: survivingLabel ? '0.25em' : '1em', fontSize: '1.3em' }}
         >
           <i>{taxon.scientificName}</i>
@@ -547,7 +547,7 @@ function Modal(props) {
               <Typography
                 variant='body2'
                 sx={{ fontSize: '1.3em' }}
-                component='h2'
+                component='h4'
               >
                 {t('Image')}
               </Typography>

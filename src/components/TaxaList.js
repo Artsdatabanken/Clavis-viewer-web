@@ -135,7 +135,7 @@ function TaxaList(props) {
         }}
       >
         <Typography
-          component='div'
+          variant='h3'
           sx={{
             fontSize: '1.1rem',
             fontWeight: 700,
