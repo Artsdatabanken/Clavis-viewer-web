@@ -450,13 +450,15 @@ class IdentificationInterface extends Component {
           anchor='right'
           open={this.state.drawerOpen}
           onClose={this.closeDrawer}
-          PaperProps={{
-            sx: {
-              width: { xs: '85vw', sm: 360 },
-              maxWidth: '100%',
-              backgroundColor: '#fffcf7',
-              display: 'flex',
-              flexDirection: 'column'
+          slotProps={{
+            paper: {
+              sx: {
+                width: { xs: '85vw', sm: 360 },
+                maxWidth: '100%',
+                backgroundColor: '#fffcf7',
+                display: 'flex',
+                flexDirection: 'column'
+              }
             }
           }}
         >
@@ -474,10 +476,12 @@ class IdentificationInterface extends Component {
                 </ListItemIcon>
                 <ListItemText
                   primary={t('Language')}
-                  primaryTypographyProps={{
-                    fontSize: '1.1rem',
-                    fontWeight: 500,
-                    color: '#1c3840'
+                  slotProps={{
+                    primary: {
+                      fontSize: '1.1rem',
+                      fontWeight: 500,
+                      color: '#1c3840'
+                    }
                   }}
                 />
                 <ExpandMoreIcon
@@ -507,10 +511,12 @@ class IdentificationInterface extends Component {
                       >
                         <ListItemText
                           primary={languageLabel(code)}
-                          primaryTypographyProps={{
-                            fontSize: '1rem',
-                            fontWeight: active ? 600 : 400,
-                            color: '#1c3840'
+                          slotProps={{
+                            primary: {
+                              fontSize: '1rem',
+                              fontWeight: active ? 600 : 400,
+                              color: '#1c3840'
+                            }
                           }}
                         />
                         {active && (
@@ -539,10 +545,12 @@ class IdentificationInterface extends Component {
                 </ListItemIcon>
                 <ListItemText
                   primary={t('About')}
-                  primaryTypographyProps={{
-                    fontSize: '1.1rem',
-                    fontWeight: 500,
-                    color: '#1c3840'
+                  slotProps={{
+                    primary: {
+                      fontSize: '1.1rem',
+                      fontWeight: 500,
+                      color: '#1c3840'
+                    }
                   }}
                 />
               </ListItemButton>
