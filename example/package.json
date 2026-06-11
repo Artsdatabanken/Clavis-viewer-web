@@ -16,7 +16,7 @@
     "react-dom": "file:../node_modules/react-dom"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^5.0.2",
-    "vite": "^6.4.3"
+    "@vitejs/plugin-react": "^6.0.2",
+    "vite": "^8.0.16"
   }
 }
