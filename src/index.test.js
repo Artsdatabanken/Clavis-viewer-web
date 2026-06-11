@@ -1,7 +1,8 @@
-import { ExampleComponent } from '.'
+import { describe, it, expect } from 'vitest'
+import { ClavisViewer } from '.'
 
-describe('ExampleComponent', () => {
-  it('is truthy', () => {
-    expect(ExampleComponent).toBeTruthy()
+describe('ClavisViewer', () => {
+  it('is exported', () => {
+    expect(ClavisViewer).toBeTruthy()
   })
 })
