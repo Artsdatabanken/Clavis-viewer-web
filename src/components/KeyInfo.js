@@ -56,7 +56,7 @@ function KeyInfo(props) {
         <CardContent>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <div style={{ flex: '1 1 auto' }}>
-              <Typography gutterBottom variant='h5' component='h2'>
+              <Typography gutterBottom variant='h5' component='h3'>
                 {key.title[i18n.language]}
               </Typography>
               <Typography variant='body2' component='p'>

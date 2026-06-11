@@ -3,6 +3,7 @@ import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 import HttpApi from 'i18next-http-backend'
 import nbTranslations from './locales/nb.json'
+import nnTranslations from './locales/nn.json'
 import enTranslations from './locales/en.json'
 
 
@@ -15,7 +16,8 @@ i18n
   .init({
     resources: {
       en: { translation: enTranslations.translation },
-      nb: { translation: nbTranslations.translation }
+      nb: { translation: nbTranslations.translation },
+      nn: { translation: nnTranslations.translation }
     },
     fallbackLng: 'en',
     debug: true,

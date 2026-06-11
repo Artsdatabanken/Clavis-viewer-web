@@ -7,6 +7,16 @@ export const capitalize = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
+export const languageLabel = (code) => {
+  try {
+    const dn = new Intl.DisplayNames([code], { type: 'language' })
+    const name = dn.of(code)
+    return name ? name.charAt(0).toUpperCase() + name.slice(1) : code
+  } catch (e) {
+    return code
+  }
+}
+
 export const getImgSrc = (mediaElement, width, height) => {
   
   if (mediaElement["file"]["file"]){
